@@ -1,0 +1,144 @@
+
+.profilePage {
+    display: flex;
+    flex-direction: column;
+    align-items: baseline;
+    justify-content: center;
+    padding: 20px;
+}
+
+.profileBanner {
+    display: flex;
+    border-radius: 6px;
+    background-color: var(--primary-color-light);
+    transition: var(--trans-05);
+    justify-content: center;
+    align-items: center;
+    height: 75px;
+    width: 100%;
+
+    .profilePicture {
+        position: relative;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background-color: var(--body-color);
+        transition: var(--trans-05);
+        height: 100px;
+        width: 100px;
+        border-radius: 50%;
+        border: 2px solid var(--sidebar-color);
+        top: 35px;
+
+        img {
+            position: absolute;
+            height: 100px;
+            width: 100px;
+            border-radius: 50%;
+        }
+    }
+}
+
+.profileContainer {
+    position: relative;
+    display: flex;
+    align-items: baseline;
+    justify-content: center;
+    width: 100%;
+    padding: 70px 10px 10px 10px;
+    flex-wrap: wrap;
+    gap: 10px;
+
+    p {
+        color: var(--text-color);
+        transition: var(--trans-02);
+    }
+
+    .profileData,
+    .profileStats {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        height: auto;
+        padding: 16px;
+        border-radius: 6px;
+        box-shadow: rgba(0, 0, 0, 0.24) 0 3px 8px;
+        background-color: var(--primary-color-light);
+        color: var(--text-color);
+        transition: var(--trans-05);
+    }
+
+    .profileData, {
+        align-items: start;
+
+        input {
+            font-size: 16px;
+            background-color: var(--primary-color-light);
+            color: var(--text-color);
+            transition: var(--trans-02);
+            width: 150px;
+
+            &:disabled {
+                outline: none;
+                border: none;
+            }
+
+        }
+    }
+
+    .profileStats {
+        align-items: start;
+        gap: 20px;
+
+        table {
+            border-collapse: collapse;
+
+            tbody {
+
+                td {
+                    padding: 1px 5px 1px 0;
+                }
+            }
+        }
+    }
+
+    .deleteAccount {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background-color: #fff;
+        padding: 20px;
+        border: 1px solid #ccc;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        z-index: 1000;
+        // Add any other styles for the delete account modal
+
+        p {
+            margin-bottom: 15px;
+        }
+
+        button {
+            padding: 10px 15px;
+            margin-right: 10px;
+            cursor: pointer;
+            // Add any other styles for the buttons
+        }
+    }
+
+    .overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .overlay.active {
+        display: flex;
+    }
+}

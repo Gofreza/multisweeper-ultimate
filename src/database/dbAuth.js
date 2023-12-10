@@ -114,21 +114,13 @@ async function insertUserPG(pgClient, username, password) {
  */
 async function deleteUserPG(pgClient, username) {
     try {
-        const queries = [
-            {
-                name: 'delete-stats-pg',
-                text: `DELETE FROM stats WHERE username = $1`,
-                values: [username]
-            },
-            {
-                name: 'delete-user-pg',
-                text: `DELETE FROM users WHERE username = $1`,
-                values: [username]
-            }
-        ]
-        for (const query of queries) {
-            await pgClient.query(query);
+        const query = {
+            name: 'delete-user-pg',
+            text: `DELETE FROM users WHERE username = $1`,
+            values: [username]
         }
+
+        await pgClient.query(query);
     } catch (error) {
         console.error("Error deleteUserPG:", error.message);
     }
@@ -214,8 +206,48 @@ async function changePasswordPG(pgClient, username, newPassword) {
     }
 }
 
+/**
+ * Changes the username of the specified user.
+ * @param {Object} pgClient - The database object.
+ * @param {string} username - The username to change.
+ * @param {string} newUsername - The new username.
+ * @returns {Promise<unknown>} A promise that resolves if the username is successfully changed.
+ */
+async function changeUsernamePG(pgClient, username, newUsername) {
+    try {
+        const query = {
+            name: 'change-username',
+            text: `UPDATE users SET username = $1 WHERE username = $2`,
+            values: [newUsername, username]
+        };
+        await pgClient.query(query)
+    } catch (error) {
+        console.error("Error changeUsernamePG:", error.message);
+    }
+}
+
+/**
+ * Gets the role of the specified user.
+ * @param {Object} pgClient - The database object.
+ * @param {string} username - The username to check.
+ * @returns {Promise<unknown>} A promise that resolves with the role of the specified user.
+ */
+async function getUserRole(pgClient, username) {
+    try {
+        const query = {
+            name: 'get-user-role',
+            text: `SELECT role FROM users WHERE username = $1`,
+            values: [username]
+        };
+        const res = await pgClient.query(query)
+        return res.rows[0].role;
+    } catch (error) {
+        console.error("Error getUserRole:", error.message);
+    }
+}
+
 module.exports = {
     // PostgresSQL
     isAdminPG, getHashUserPG, usernameExistsPG, insertUserPG, deleteUserPG,
-    addConnectionPG, deleteConnectionPG, isConnectedPG, changePasswordPG,
+    addConnectionPG, deleteConnectionPG, isConnectedPG, changePasswordPG, changeUsernamePG, getUserRole,
 }

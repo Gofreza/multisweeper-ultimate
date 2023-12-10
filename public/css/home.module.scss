@@ -1,0 +1,131 @@
+
+.homeContainer,
+.roomsContainer{
+    display: flex;
+    align-items: baseline;
+    justify-content: center;
+    padding: 20px 20px;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.homeContainer {
+    .soloContainer,
+    .multiContainer {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        height: 100%;
+        padding: 16px;
+        border-radius: 6px;
+        box-shadow: rgba(0, 0, 0, 0.24) 0 3px 8px;
+        background-color: var(--primary-color-light);
+        color: var(--text-color);
+        transition: var(--trans-05);
+
+        h1, form {
+            color: var(--text-color);
+            transition: var(--trans-05);
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+        }
+
+        form input {
+            outline: none;
+            border-radius: 6px;
+            padding: 1px 2px 1px 5px;
+            background-color: var(--primary-color-light);
+            color: var(--text-color);
+            transition: var(--trans-05);
+        }
+
+        form button {
+            margin: 10px;
+        }
+
+        .formElement {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .formElementCheckBox {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: center;
+
+            label {
+                margin-right: 5px;
+            }
+        }
+
+    }
+}
+
+.roomsContainer {
+    .roomsList {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        height: 100%;
+        min-width: 50%;
+        padding: 16px;
+
+        table {
+            color: var(--text-color);
+            border-collapse: collapse;
+
+            th, td {
+                border: 1px solid #ddd;
+            }
+
+            td {
+                padding: 15px;
+            }
+
+            thead {
+                color: var(--menu--color);
+                background-color: var(--primary-color);
+                transition: var(--trans-05);
+
+                th, td {
+                    padding: 15px;
+                    text-align: left;
+                }
+            }
+
+            tbody {
+                background: var(--sidebar-color);
+                transition: var(--trans-05);
+            }
+
+            @media screen and (max-width: 600px) {
+                table {
+                    border: 0;
+                }
+                table tr {
+                    margin-bottom: 20px;
+                    display: flex;
+                }
+                table td {
+                    display: block;
+                    text-align: right;
+                    width: 100%;
+                    padding: 10px;
+                }
+            }
+
+        }
+    }
+}
+
+@media (max-width: 600px) {
+    .homeContainer {
+        flex-direction: column;
+    }
+}

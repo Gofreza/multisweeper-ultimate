@@ -101,7 +101,7 @@ function createStatsTable(){
         name: "create-stats-table",
         text:`
         CREATE TABLE IF NOT EXISTS stats (
-            username VARCHAR(50) NOT NULL,
+            "user" INTEGER NOT NULL,
             gameMode VARCHAR(50) NOT NULL,
             numGamesPlayed INTEGER NOT NULL,
             numGamesWon INTEGER NOT NULL,
@@ -113,8 +113,8 @@ function createStatsTable(){
             averageTime INTEGER NOT NULL, 
             fastestTime INTEGER NOT NULL,
             longestTime INTEGER NOT NULL,
-            FOREIGN KEY (username) REFERENCES users(username),
-            PRIMARY KEY (username, gameMode)
+            FOREIGN KEY ("user") REFERENCES users(id),
+            PRIMARY KEY ("user", gameMode)
     );`};
 
     pgClient.query(query)

@@ -22,6 +22,7 @@ const server = http.createServer(app); // Use http.createServer to create a serv
 
 // Serve static files from the "public" directory
 app.use(express.static(path.join(__dirname, '/public')));
+console.log(path.join(__dirname, '/public'));
 app.use(express.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
@@ -43,14 +44,15 @@ app.use(flash());
 // *** Route config ***
 // ********************
 
-const globalRoutes = require('./src/routes/global');
-app.use(globalRoutes);
+const authRoutes = require('./src/routes/auth');
+const apiRoutes = require('./src/api/api');
+app.use(authRoutes, apiRoutes);
 
 // *********************
 // *** React Routing ***
 // *********************
 
-app.get('/', (req, res) => {
+app.get('*', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
 })
 

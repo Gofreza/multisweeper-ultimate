@@ -1,26 +1,27 @@
 import React, { useEffect, useState } from "react";
 
-const withAuthentication = (WrappedComponent) => {
+const withNotAuthentication = (WrappedComponent) => {
     return (props) => {
         const [isAuthenticated, setIsAuthenticated] = useState(null);
 
         useEffect(() => {
-            const checkAuthentication = async () => {
+            const checkNotAuthentication = async () => {
                 try {
-                    const response = await fetch('/api/check-auth');
-                    if (!response.ok) {
-                        console.log('User is not authenticated');
+                    const response = await fetch('/api/check-not-auth');
+                    if (response.ok) {
+                        console.log('User is not log in');
                         setIsAuthenticated(false);
                     } else {
+                        console.log('User is log in');
                         setIsAuthenticated(true);
                     }
                 } catch (error) {
-                    console.error('Error checking authentication:', error);
+                    console.error('Error checking log in:', error);
                     setIsAuthenticated(false);
                 }
             };
 
-            checkAuthentication();
+            checkNotAuthentication();
         }, []); // Make sure to pass an empty dependency array to useEffect
 
         if (isAuthenticated === null) {
@@ -32,4 +33,4 @@ const withAuthentication = (WrappedComponent) => {
     };
 };
 
-export default withAuthentication;
+export default withNotAuthentication;

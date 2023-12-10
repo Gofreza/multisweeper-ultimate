@@ -1,0 +1,43 @@
+// styles.scss
+
+.loginForm {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+
+  h1 {
+    text-align: center;
+    margin-bottom: 30px;
+    color: var(--text-color);
+  }
+
+  form {
+    max-width: 300px;
+    margin: 0 auto;
+
+    input {
+      width: 100%;
+      padding: 10px;
+      box-sizing: border-box;
+      margin-bottom: 15px;
+    }
+
+    input[type="submit"] {
+      background-color: var(--primary-color);
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+  }
+
+  @media (max-width: 600px) {
+    form {
+      max-width: 100%;
+    }
+
+    input {
+      padding: 8px;
+    }
+  }
+}

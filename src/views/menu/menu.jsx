@@ -1,29 +1,24 @@
 import { Link } from "react-router-dom";
-import { useEffect, useState } from "react";
-const Menu = ({ isLogged }) => {
-    const [role, setRole] = useState("none");
+import styles from "/public/css/menu.module.css";
 
-    // Put back isDataLoading is needed
+const Menu = ({ isLogged }) => {
+
+    // Put back isDataLoading and role is needed
 
     return (
-        <nav className="horizontal-nav">
+        <nav className={styles.horizontalNav}>
             <ul>
                 {isLogged ? (
                     <>
                         <li><a href="/logout">Log Out</a></li>
                         <li><Link to="/">Home</Link></li>
-                        <li><Link to={"/citations"}>Citations</Link></li>
-                        <li><Link to={"/favorite"}>Favorite</Link></li>
-                        <li><Link to={"/add"}>Ajouter</Link></li>
-                        {role === "admin" &&
-                            <li><Link to={"/admin"}>Admin</Link></li>
-                        }
+                        <li><Link to="/test">Test</Link></li>
                     </>
                 ) : (
                     <>
-                        <li><a href="/discord">Log In</a></li>
+                        <li><Link to="/login">Log In</Link></li>
                         <li><Link to="/">Home</Link></li>
-                        <li><Link to={"/citations"}>Citations</Link></li>
+                        <li><Link to="/test">Test</Link></li>
                     </>
                 )}
             </ul>
