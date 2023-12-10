@@ -1,0 +1,91 @@
+
+.leaderboardPage {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.leaderboardContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  border-radius: 6px;
+  box-shadow: rgba(0, 0, 0, 0.24) 0 3px 8px;
+  background-color: var(--primary-color-light);
+  color: var(--text-color);
+  transition: var(--trans-05);
+
+  .leaderboardHeader {
+    text-align: center;
+  }
+
+  .leaderboardBody {
+    padding-top: 20px;
+
+    ul {
+
+      li {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        border: 1px solid var(--text-color);
+        padding: 10px;
+        margin-bottom: 10px;
+      }
+
+    }
+  }
+  .leaderboardBody {
+    ul {
+      list-style: none;
+      padding: 0;
+
+      li {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        border: 1px solid var(--text-color);
+        padding: 10px;
+        margin-bottom: 10px;
+        width: 100%;
+        max-width: 300px; // Adjust as needed
+        text-align: center;
+        user-select: none;
+
+        &:hover {
+          background-color: var(--body-color);
+        }
+
+        .leaderboardRank {
+          span {
+            font-size: 20px;
+            font-weight: bold;
+          }
+        }
+
+        .leaderboardScore {
+          span {
+            font-size: 16px;
+            font-weight: 500;
+          }
+        }
+
+        .leaderboardInfo {
+          .leaderboardName {
+            span {
+              font-size: 16px;
+            }
+          }
+        }
+
+      }
+    }
+  }
+
+}

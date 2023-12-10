@@ -11,11 +11,13 @@ import withNotAuthentication from "../auth/withNotAuthentication";
 import LoginComponent from "../auth/login";
 import Profile from "../page/profile";
 import ChangePassword from "../auth/changePassword";
+import Leaderboard from "../page/leaderboard";
 
 const HomeAuth = withAuthentication(Home);
 const ProfileAuth = withAuthentication(Profile);
 const LoginNotAuth = withNotAuthentication(LoginComponent);
 const ChangePasswordAuth = withAuthentication(ChangePassword);
+const LeaderboardAuth = withAuthentication(Leaderboard);
 
 // Define an async function and call it immediately
 const init = async () => {
@@ -32,6 +34,10 @@ const init = async () => {
             {
                 path: "/profile",
                 element: <ProfileAuth/>,
+            },
+            {
+                path: "/leaderboard",
+                element: <LeaderboardAuth/>,
             },
             {
                 path: "/change-password",

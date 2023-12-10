@@ -75,10 +75,10 @@ const sideMenu = ({isAuthenticated, isAdmin}) => {
                                 <></>
                             )}
                             <li className="nav-links">
-                                <a href="#">
+                                <Link to="/leaderboard">
                                     <i className='bx bx-bar-chart-alt-2 icon'></i>
                                     <span className="text nav-text">Leaderboard</span>
-                                </a>
+                                </Link>
                             </li>
                             <li className="nav-links">
                                 <a href="#">

@@ -5,6 +5,7 @@ const { getClient } = require('../database/dbSetup');
 const {verifyConnection} = require("../miscFunctions/functions");
 const {getStats} = require("../database/dbStats");
 const {compare, hash} = require("bcrypt");
+const {getTopScores} = require("../database/dbLeaderboard");
 const router = express.Router();
 
 router.get('/api/check-auth', async (req, res) => {
@@ -71,6 +72,15 @@ router.get('/api/get-stats', verifyConnection, async (req, res) => {
     }
 })
 
+router.get('/api/get-leaderboard', async (req, res) => {
+    try {
+        const leaderboard = await getTopScores(getClient());
+        res.status(200).send({leaderboard: leaderboard});
+    } catch (error) {
+        console.error('Error getting leaderboard:', error);
+        res.status(500).send({message: 'Internal Server Error'});
+    }
+})
 
 router.post('/api/change-username', verifyConnection, async (req, res) => {
     try {
