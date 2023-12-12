@@ -47,6 +47,7 @@ class Game {
         this.cols = cols;
 
         //Initialize the game
+        this.firstClick = false;
         this.initialize();
     }
 
@@ -59,7 +60,7 @@ class Game {
         this.numCellsRevealed = 0;
         this.timeElapsed = 0;
         this.isGameStarted = false;
-        this.grid = new Grid(this.rows, this.cols, this.numBombs, this.bombsCoordinates);
+        this.grid = null;
         this.currentGrid = new Grid(this.rows, this.cols);
     }
 
@@ -138,6 +139,15 @@ class Game {
         if (!this.isGameStarted) {
             this.isGameStarted = true;
             this.startTimer();
+        }
+
+        if (!this.firstClick) {
+            this.grid = new Grid(this.rows, this.cols, this.numBombs, this.bombsCoordinates, row, col);
+            this.firstClick = true;
+        }
+
+        if (this.grid.isFlagged(row, col)) {
+            return [];
         }
 
         if (!this.grid.isVisible(row, col) && !this.grid.isFlagged(row, col)) {
