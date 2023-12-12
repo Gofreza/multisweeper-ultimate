@@ -6,6 +6,7 @@ const {verifyConnection} = require("../miscFunctions/functions");
 const {getStats} = require("../database/dbStats");
 const {compare, hash} = require("bcrypt");
 const {getTopScores} = require("../database/dbLeaderboard");
+const {getInstance, reduceID} = require("../core/roomData");
 const router = express.Router();
 
 router.get('/api/check-auth', async (req, res) => {
@@ -149,6 +150,63 @@ router.post('/api/delete-account', verifyConnection, async (req, res) => {
         res.status(200).send({ message: 'Account deleted' });
     } catch (error) {
         console.error('Error deleting account:', error);
+        res.status(500).send({ message: 'Internal Server Error' });
+    }
+})
+
+/* =========
+    Room API
+   ========= */
+
+const roomData = getInstance();
+
+router.post('/api/create-solo-room', (req, res) => {
+    try {
+        const {rows, cols} = req.body;
+        const username = req.session.accountUsername;
+        const roomId = roomData.addSoloRoom(rows, cols, username);
+        console.log("Create Room:", roomData.getSoloRoom(roomId));
+        res.cookie('roomId', roomId, {httpOnly: false})
+        res.status(200).send({roomId: roomId});
+    } catch (error) {
+        console.error('Error creating solo game (api):', error);
+        res.status(500).send({ message: 'Internal Server Error' });
+    }
+})
+
+router.post('/api/join-solo-room', (req, res) => {
+    try {
+        const roomId = req.body.roomId;
+        const username = req.session.accountUsername || "Anonymous";
+        const roomIdJoined = roomData.joinSoloRoom(roomId, username);
+        const room = roomData.getSoloRoom(roomIdJoined);
+        const currentGrid = room.game.currentGrid;
+
+        // Set all the non-visible cells to -1
+        // Tell the client only where are the cells that he discovered
+        for (let i = 0; i < currentGrid.length; i++) {
+            for (let j = 0; j < currentGrid.width; j++) {
+                if (!currentGrid.matrix[i][j].isVisible()) {
+                    currentGrid.matrix[i][j].setNumber(-1);
+                }
+            }
+        }
+
+        console.log("Join Room:", room.game.currentGrid);
+        res.status(200).send({ roomId: roomIdJoined, room: currentGrid });
+    } catch (error) {
+        console.error('Error joining solo game (api):', error);
+        res.status(500).send({ message: 'Internal Server Error' });
+    }
+})
+
+router.post('/api/leave-solo-room', (req, res) => {
+    try {
+        const roomId = req.body.roomId;
+        roomData.removeSoloRoom(roomId);
+        res.status(200).send({ message: 'Solo room deleted' });
+    } catch (error) {
+        console.error('Error leaving solo game (api):', error);
         res.status(500).send({ message: 'Internal Server Error' });
     }
 })

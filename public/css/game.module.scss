@@ -1,0 +1,93 @@
+
+.canvasPage {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+
+    .container {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        width: fit-content;
+
+        .canvasInfos {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+
+            .bombsContainer {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+            }
+            .timer, .bombs {
+                font-weight: 500;
+            }
+
+            .bombs {
+                margin-left: 1rem;
+            }
+
+            .timer {
+                margin-right: 1rem;
+            }
+        }
+
+        .canvasContainer {
+            display: flex;
+        }
+    }
+}
+
+.modal {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    position: fixed;
+    top: 35%;
+    left: 45%;
+
+    .modalContent {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        width: 100%;
+        height: fit-content;
+        padding: 1rem;
+        background-color: #fff;
+        border-radius: 0.5rem;
+        box-shadow: 0 0 0.5rem rgba(0, 0, 0, 0.5);
+
+        .modalHeader, .modalBody, .modalFooter {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            height: fit-content;
+            padding: 1rem;
+        }
+
+        .modalHeader {
+            .close {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                position: absolute;
+                top: 0;
+                right: 0;
+                width: 2rem;
+                height: 2rem;
+                padding: 0.5rem;
+                border-radius: 50%;
+                background-color: #fff;
+                box-shadow: 0 0 0.5rem rgba(0, 0, 0, 0.5);
+                cursor: pointer;
+            }
+        }
+    }
+}

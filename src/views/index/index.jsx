@@ -12,6 +12,8 @@ import LoginComponent from "../auth/login";
 import Profile from "../page/profile";
 import ChangePassword from "../auth/changePassword";
 import Leaderboard from "../page/leaderboard";
+import Solo from "../game/solo";
+import Multi from "../game/multi";
 
 const HomeAuth = withAuthentication(Home);
 const ProfileAuth = withAuthentication(Profile);
@@ -42,6 +44,14 @@ const init = async () => {
             {
                 path: "/change-password",
                 element: <ChangePasswordAuth/>,
+            },
+            {
+                path: "/game/solo",
+                element: <Solo/>,
+            },
+            {
+                path: "/game/multi",
+                element: <Multi/>,
             }
         ]);
 
