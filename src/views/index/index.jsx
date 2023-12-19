@@ -20,6 +20,8 @@ const ProfileAuth = withAuthentication(Profile);
 const LoginNotAuth = withNotAuthentication(LoginComponent);
 const ChangePasswordAuth = withAuthentication(ChangePassword);
 const LeaderboardAuth = withAuthentication(Leaderboard);
+const SoloAuth = withAuthentication(Solo);
+const MultiAuth = withAuthentication(Multi);
 
 // Define an async function and call it immediately
 const init = async () => {
@@ -47,11 +49,11 @@ const init = async () => {
             },
             {
                 path: "/game/solo",
-                element: <Solo/>,
+                element: <SoloAuth/>,
             },
             {
                 path: "/game/multi",
-                element: <Multi/>,
+                element: <MultiAuth/>,
             }
         ]);
 

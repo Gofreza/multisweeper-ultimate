@@ -2,10 +2,21 @@
   "name": "multisweeper-ultimate",
   "version": "1.0.0",
   "description": "",
-  "main": "app.js",
+  "source": "./src/views/index/index.jsx",
+  "main": "dist/index.js",
   "scripts": {
-    "start": "node app.js",
-    "start-web": "parcel ./src/views/index/index.jsx"
+    "start": "NODE_ENV=development node server.js",
+    "start-web": "parcel ./src/views/index/index.jsx",
+    "clean": "rm -rf dist",
+    "build": "NODE_ENV=production npm run clean && parcel build --target frontend"
+  },
+  "targets": {
+    "frontend": {
+      "source": "./public/html/index.html",
+      "distDir": "./dist",
+      "context": "browser",
+      "includeNodeModules": true
+    }
   },
   "keywords": [],
   "author": "",
@@ -29,6 +40,7 @@
     "socket.io-client": "^4.7.2"
   },
   "devDependencies": {
+    "@parcel/transformer-sass": "^2.10.3",
     "assert": "^2.1.0",
     "crypto-browserify": "^3.12.0",
     "events": "^3.3.0",

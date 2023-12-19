@@ -45,6 +45,7 @@ class Game {
         this.currentGrid = null;
         this.rows = rows;
         this.cols = cols;
+        this.currentBombs = this.numBombs;
 
         //Initialize the game
         this.firstClick = false;
@@ -186,6 +187,7 @@ class Game {
 
         if (this.grid.isVisible(row, col) && !this.grid.isFlagged(row, col)) {
             const res = this.grid.revealNeighbours(row, col);
+            console.log("res:", res);
 
             console.log("Game ended:", this.checkIfGameEnded());
             if (this.checkIfGameEnded()) {
@@ -194,6 +196,11 @@ class Game {
                 this.stopTimer();
                 return {gameEnded: true, isGameWin: true, gridCells: this.grid.revealGrid()};
             }
+
+            res.revealedCells.map((r) => {
+                this.currentGrid.setNumber(r.row, r.col, r.number);
+                this.currentGrid.setVisible(r.row, r.col);
+            })
 
             console.log("Neighbors:", res);
             return res;
@@ -208,8 +215,25 @@ class Game {
             this.startTimer();
         }
 
+        if (this.grid.isVisible(row, col)) {
+            return [];
+        }
+
         if (!this.grid.isVisible(row, col)) {
+
+            // Update current bombs number
+            if (this.grid.isFlagged(row, col)) {
+                this.currentBombs++;
+            } else {
+                if (this.currentBombs > 0)
+                    this.currentBombs--;
+            }
+
+            // Flag the server cell
             this.grid.toggleFlag(row, col);
+
+            // Flag the client cell
+            this.currentGrid.toggleFlag(row, col);
 
             console.log("Game ended:", this.checkIfGameEnded());
             if (this.checkIfGameEnded()) {

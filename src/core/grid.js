@@ -48,6 +48,10 @@ class Grid {
                 if (clickRow !== -1 && clickCol !== -1) {
                     // Place bombs around the clicked point
                     this.placeBombsAroundClick(clickRow, clickCol);
+                } else {
+                    // Place bombs randomly
+                    this.placeBombs(this.numbombs);
+
                 }
             }
         }
@@ -304,12 +308,16 @@ class Grid {
             }
         }
 
+        if (isBomb) {
+            revealedCells = this.revealGrid();
+        }
+
         return { neighbors: true, isBomb: isBomb, bombsList: bombs, revealedCells: revealedCells };
     }
 
     /**
      * Reveal the full grid
-     * @returns {*[]} - Returns an array containing whether the game has ended and whether the user has won
+     * @returns {*[]} - Return the full grid revealed
      */
     revealGrid() {
         let cells = [];

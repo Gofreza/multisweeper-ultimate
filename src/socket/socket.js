@@ -23,6 +23,14 @@ module.exports = function configureSocket(server, sessionMiddleware, app) {
             //console.log("room:", room)
             const game = room.game;
             const res = game.handleLeftClick(row, col);
+
+            if (res.gameEnded) {
+                console.log("Game ended:", res.gameEnded);
+                const room = roomData.getSoloRoom(roomId);
+                room.finished = true;
+                room.win = res.isGameWin;
+            }
+
             //console.log("res:", res);
             console.log('left-click', row, col, "RoomId:", roomId);
             socket.emit('left-click', res);
@@ -33,7 +41,15 @@ module.exports = function configureSocket(server, sessionMiddleware, app) {
             const room = roomData.getSoloRoom(roomId);
             const game = room.game;
             const res = game.handleRightClick(row, col);
-            console.log("res:", res);
+
+            if (res.gameEnded) {
+                console.log("Game ended:", res.gameEnded);
+                const room = roomData.getSoloRoom(roomId);
+                room.finished = true;
+                room.win = res.isGameWin;
+            }
+
+            //console.log("res:", res);
             console.log('right-click', row, col, "RoomId:", roomId);
             socket.emit('right-click', res);
         })

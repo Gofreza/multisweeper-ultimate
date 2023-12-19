@@ -22,7 +22,10 @@ const server = http.createServer(app); // Use http.createServer to create a serv
 
 // Serve static files from the "public" directory
 app.use(express.static(path.join(__dirname, '/public')));
-console.log(path.join(__dirname, '/public'));
+if (process.env.NODE_ENV === 'production') {
+    app.use(express.static(path.join(__dirname, '/dist')));
+}
+//app.use(express.static(path.join(__dirname, '/dist'))); /* For production */
 app.use(express.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
@@ -53,7 +56,11 @@ app.use(authRoutes, apiRoutes);
 // *********************
 
 app.get('*', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'index.html'));
+    if (process.env.NODE_ENV === 'development') {
+        res.sendFile(path.join(__dirname, 'public/html', 'index.html'));
+    } else {
+        res.sendFile(path.join(__dirname, 'dist', 'index.html'));
+    }
 })
 
 

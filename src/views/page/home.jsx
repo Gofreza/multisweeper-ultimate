@@ -7,6 +7,8 @@ const Home = ({isAuthenticated, isAdmin}) => {
     const [row, setRow] = useState(10);
     const [col, setCol] = useState(10);
 
+    const [roomName, setRoomName] = useState('');
+
     const navigate = useNavigate();
 
     const handleRowInput = (event) => {
@@ -17,19 +19,32 @@ const Home = ({isAuthenticated, isAdmin}) => {
         setCol(event.target.value);
     }
 
+    const handleRoomNameInput = (event) => {
+        setRoomName(event.target.value);
+    }
+
     useEffect(() => {
         const soloFormButton = document.getElementById('soloFormButton');
         soloFormButton.addEventListener('click', handleSoloFormButtonClick);
 
+        const createMultiRoom = document.getElementById('createMultiRoom');
+        createMultiRoom.addEventListener('click', handleCreateMultiRoomButtonClick);
+
         return () => {
             soloFormButton.removeEventListener('click', handleSoloFormButtonClick);
+            createMultiRoom.removeEventListener('click', handleCreateMultiRoomButtonClick);
         };
-    }, [row, col]); // Add row and col as dependencies
+    }, [row, col, roomName]); // Add row and col as dependencies
 
     const handleSoloFormButtonClick = (event) => {
         event.preventDefault();
         navigate('/game/solo', { state: { row: row, col: col } });
     };
+
+    const handleCreateMultiRoomButtonClick = (event) =>  {
+        event.preventDefault();
+        navigate('/game/multi', { state: { roomName: roomName, ranked: document.getElementById('rankedCheckBox').checked } });
+    }
 
   return (
     <>
@@ -52,16 +67,16 @@ const Home = ({isAuthenticated, isAdmin}) => {
                     {isAuthenticated && (
                         <div className={styles.multiContainer}>
                             <h1>Multiplayer</h1>
-                            <form id="createRoom" action="">
+                            <form>
                                 <div className={styles.formElement}>
                                     <label htmlFor="inputCreateRoom">Room Name</label>
-                                    <input type="text" id="inputCreateRoom" autoComplete="off" />
+                                    <input type="text" id="inputCreateRoom" name="inputCreateRoom" autoComplete="off" value={roomName} onChange={handleRoomNameInput} required/>
                                 </div>
                                 <div className={styles.formElementCheckBox}>
                                     <label htmlFor="rankedCheckBox">Ranked</label>
                                     <input id="rankedCheckBox" type="checkbox"/>
                                 </div>
-                                <button>Create Room</button>
+                                <button id="createMultiRoom">Create Room</button>
                             </form>
                         </div>
                     )}

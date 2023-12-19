@@ -24,6 +24,11 @@ class RoomData {
         return RoomData.instance;
     }
 
+    /* ===========
+        Solo Room
+       =========== */
+
+
     addSoloRoom(row, col, playerName) {
         let room = {
             id: RoomData.ID,
@@ -33,7 +38,7 @@ class RoomData {
             game: new Game(row, col),
             started: false,
             finished: false,
-            winner: null,
+            win: false,
         }
         RoomData.ID++;
         this.soloRooms[room.id] = room;
@@ -54,6 +59,10 @@ class RoomData {
     removeSoloRoom(roomId) {
         delete this.soloRooms[roomId];
     }
+
+    /* ============
+        Multi Room
+       ============ */
 
     addMultiRoom(row, col, name, numPlayers, playerName) {
         let room = {

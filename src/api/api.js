@@ -51,7 +51,8 @@ router.get('/api/check-not-auth', async (req, res) => {
             const isConnected = await isConnectedPG(getClient(), token);
 
             if (isConnected) {
-                res.status(401).send({ message: 'Already log in' });
+                await deleteConnectionPG(getClient(), token);
+                res.status(200).send({ message: 'Already log in, user disconnected' });
             } else {
                 res.status(200).send({ message: 'Not log in' });
             }
@@ -82,6 +83,10 @@ router.get('/api/get-leaderboard', async (req, res) => {
         res.status(500).send({message: 'Internal Server Error'});
     }
 })
+
+/* =============
+    Profile API
+   ============= */
 
 router.post('/api/change-username', verifyConnection, async (req, res) => {
     try {
@@ -154,9 +159,9 @@ router.post('/api/delete-account', verifyConnection, async (req, res) => {
     }
 })
 
-/* =========
-    Room API
-   ========= */
+/* ===============
+    Solo Room API
+   =============== */
 
 const roomData = getInstance();
 
@@ -165,7 +170,7 @@ router.post('/api/create-solo-room', (req, res) => {
         const {rows, cols} = req.body;
         const username = req.session.accountUsername;
         const roomId = roomData.addSoloRoom(rows, cols, username);
-        console.log("Create Room:", roomData.getSoloRoom(roomId));
+        //console.log("Create Room:", roomData.getSoloRoom(roomId));
         res.cookie('roomId', roomId, {httpOnly: false})
         res.status(200).send({roomId: roomId});
     } catch (error) {
@@ -182,18 +187,24 @@ router.post('/api/join-solo-room', (req, res) => {
         const room = roomData.getSoloRoom(roomIdJoined);
         const currentGrid = room.game.currentGrid;
 
-        // Set all the non-visible cells to -1
-        // Tell the client only where are the cells that he discovered
-        for (let i = 0; i < currentGrid.length; i++) {
-            for (let j = 0; j < currentGrid.width; j++) {
-                if (!currentGrid.matrix[i][j].isVisible()) {
-                    currentGrid.matrix[i][j].setNumber(-1);
+        if (room.finished) {
+            const grid = room.game.grid.revealGrid();
+            res.status(200).send({ roomId: roomIdJoined, room: grid, isFinished: true, isGameWin: room.win, numBombs: 0 });
+        } else {
+            // Set all the non-visible cells to -1
+            // Tell the client only where are the cells that he discovered
+            for (let i = 0; i < currentGrid.length; i++) {
+                for (let j = 0; j < currentGrid.width; j++) {
+                    if (!currentGrid.matrix[i][j].isVisible() && !currentGrid.matrix[i][j].isFlagged()) {
+                        currentGrid.matrix[i][j].setNumber(-1);
+                    }
                 }
             }
-        }
 
-        console.log("Join Room:", room.game.currentGrid);
-        res.status(200).send({ roomId: roomIdJoined, room: currentGrid });
+            //console.log("Join Room:", room.game.currentGrid);
+            console.log("Join Room:", room.game.currentBombs)
+            res.status(200).send({ roomId: roomIdJoined, room: currentGrid, numBombs: room.game.currentBombs });
+        }
     } catch (error) {
         console.error('Error joining solo game (api):', error);
         res.status(500).send({ message: 'Internal Server Error' });
@@ -210,5 +221,9 @@ router.post('/api/leave-solo-room', (req, res) => {
         res.status(500).send({ message: 'Internal Server Error' });
     }
 })
+
+/* ================
+    Multi Room API
+   ================ */
 
 module.exports = router;
