@@ -17,6 +17,10 @@ module.exports = function configureSocket(server, sessionMiddleware, app) {
     io.on('connection', (socket) => {
         console.log('New socket connection', socket.id);
 
+        // =========== SOLO ===========
+        //          Solo socket
+        // =========== SOLO ===========
+
         socket.on('left-click', (data) => {
             const {row, col, roomId} = data;
             const room = roomData.getSoloRoom(roomId);
@@ -52,6 +56,36 @@ module.exports = function configureSocket(server, sessionMiddleware, app) {
             //console.log("res:", res);
             console.log('right-click', row, col, "RoomId:", roomId);
             socket.emit('right-click', res);
+        })
+
+        // =========== MULTI ===========
+        //          Multi socket
+        // =========== MULTI ===========
+
+        socket.on('create-room', (data) => {
+            console.log("Socket create-room for ", data.roomName);
+            socket.join(data.roomName);
+        })
+
+        socket.on('join-room', (data) => {
+            console.log("Socket join-room: ", data.roomName);
+            socket.join(data.roomName);
+        })
+
+        socket.on('leave-room', (data) =>{
+            console.log("Socket leave-room", data.roomName);
+            const players = data.players;
+            const username = data.username;
+
+            players.splice(players.indexOf(username), 1);
+            socket.leave(data.roomName);
+            io.to(data.roomName).emit('receive-user-data', {players:players})
+        })
+
+        socket.on('propagate-user-data', (data) => {
+            const players = data.players
+            //console.log("Socket propagate-user-data", players, " Room:", data.roomName);
+            io.to(data.roomName).emit('receive-user-data', {players:players})
         })
     });
 

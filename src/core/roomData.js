@@ -64,24 +64,44 @@ class RoomData {
         Multi Room
        ============ */
 
-    addMultiRoom(row, col, name, numPlayers, playerName) {
+    addMultiRoom(name, numPlayers, playerName, ranked) {
         let room = {
             id: RoomData.ID,
             name: name,
             numPlayers: numPlayers,
             players: [playerName],
-            game: new Game(row, col),
+            game: null,
+            ranked: ranked,
             started: false,
             finished: false,
             winner: null,
         }
         RoomData.ID++;
         this.multiRooms[room.id] = room;
+        console.log("Room " + room.id + " created by " + playerName);
         return room.id;
+    }
+
+    launchMultiRoom(roomId, row, col) {
+        //Add ready check here or before
+        this.multiRooms[roomId].game = new Game(row, col);
+        this.multiRooms[roomId].started = true;
+    }
+
+    joinMultiRoom(roomId, playerName) {
+        if (!this.multiRooms[roomId].players.includes(playerName)) {
+            this.multiRooms[roomId].players.push(playerName);
+        }
+        console.log(playerName + " joined room " + roomId);
+        return roomId;
     }
 
     getMultiRoom(roomId) {
         return this.multiRooms[roomId];
+    }
+
+    getAllMultiRooms() {
+        return this.multiRooms;
     }
 
     removeMultiRoom(roomId) {

@@ -226,4 +226,88 @@ router.post('/api/leave-solo-room', (req, res) => {
     Multi Room API
    ================ */
 
+router.get('/api/get-multi-rooms', (req, res) => {
+    const allRooms = roomData.getAllMultiRooms();
+    console.log("Get Rooms:", allRooms);
+    res.status(200).send({ allRooms });
+})
+
+router.post('/api/create-multi-room', (req, res) => {
+    try {
+        const {roomName, ranked} = req.body;
+        const username = req.session.accountUsername;
+        const roomId = roomData.addMultiRoom(roomName, 1, username, ranked)
+        console.log("Create Room:", roomData.getMultiRoom(roomId));
+        res.cookie('multiRoomId', roomId, {httpOnly: false})
+        res.status(200).send({multiRoomId: roomId, players: [username]});
+    } catch (error) {
+        console.error('Error creating multi game (api):', error);
+        res.status(500).send({ message: 'Internal Server Error' });
+    }
+})
+
+router.post('/api/join-multi-room', (req, res) => {
+    try {
+        const roomId = req.body.roomId;
+        const username = req.session.accountUsername;
+        const roomIdJoined = roomData.joinMultiRoom(roomId, username);
+        const room = roomData.getMultiRoom(roomIdJoined);
+        console.log("Join Room:", room)
+
+        if (room.finished) {
+            //@TODO: Return the finished grid
+        } else if (room.started) {
+            //@TODO: Return the grid of the user asking
+            //Need to save the currentGrid of each player
+            const currentGrid = room.game.currentGrid;
+
+            res.status(200).send({ roomId: roomIdJoined, room: grid, isFinished: true, isGameWin: room.win, numBombs: 0 });
+        } else {
+
+            // Just join the room
+            // Do +1 to the number of players
+            room.numPlayers++;
+            res.cookie('multiRoomId', roomIdJoined, {httpOnly: false})
+            res.status(200).send({ roomId: roomIdJoined, roomName: room.name, ranked: room.ranked, players: room.players });
+        }
+    } catch (error) {
+        console.error('Error joining multi game (api):', error);
+        res.status(500).send({ message: 'Internal Server Error' });
+    }
+})
+
+router.post('/api/leave-multi-room', (req, res) => {
+    try {
+        const roomId = req.body.roomId;
+        console.log("RoomId:", roomId)
+        const room = roomData.getMultiRoom(roomId);
+
+        if (!room) {
+            res.status(400).send({ message: 'Room does not exist' });
+        } else {
+            console.log("Leave Room:", room)
+            // Reduce the number of players
+            room.numPlayers--;
+
+            // Delete the room
+            if (room.numPlayers <= 0) {
+                roomData.removeMultiRoom(roomId);
+                res.status(200).send({ message: 'Multi room deleted' });
+            }
+            // Leave the room
+            else {
+                // Remove user from players array
+                const username = req.session.accountUsername;
+                room.players = room.players.filter(player => player !== username);
+                res.status(200).send({ message: 'Multi room left' });
+            }
+            console.log("Leave Room (api):", room)
+        }
+
+    } catch (error) {
+        console.error('Error leaving multi game (api):', error);
+        res.status(500).send({ message: 'Internal Server Error' });
+    }
+})
+
 module.exports = router;

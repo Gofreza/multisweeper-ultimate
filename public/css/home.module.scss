@@ -50,6 +50,11 @@
         .formElement {
             display: flex;
             flex-direction: column;
+
+            .error {
+                color: red;
+                font-size: 12px;
+            }
         }
 
         .formElementCheckBox {
