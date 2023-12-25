@@ -82,7 +82,7 @@ module.exports = function configureSocket(server, sessionMiddleware, app) {
                     io.to(data.roomName).emit('multi-game-ended', results);
                 }
                 else {
-                    socket.emit('multi-game-waiting');
+                    socket.emit('multi-game-waiting', res);
                 }
             } else {
                 //console.log("res:", res);
@@ -110,7 +110,7 @@ module.exports = function configureSocket(server, sessionMiddleware, app) {
                     io.to(data.roomName).emit('multi-game-ended', results);
                 }
                 else {
-                    socket.emit('multi-game-waiting');
+                    socket.emit('multi-game-waiting', res);
                 }
             } else {
                 //console.log("res:", res);

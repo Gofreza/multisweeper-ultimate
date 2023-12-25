@@ -45,15 +45,18 @@ const Multi = ({isAuthenticated, isAdmin}) => {
         const timer = document.getElementById('timer');
         let time = 0;
 
-        timerInterval.current = setInterval(() => {
-            time++;
-            timer.innerHTML = time.toString();
-        }, 1000)
-        console.log("Start timer: ", timerInterval.current);
+        if (timerInterval.current === null) {
+            timerInterval.current = setInterval(() => {
+                time++;
+                timer.innerHTML = time.toString();
+            }, 1000)
+            console.log("Start timer: ", timerInterval.current);
+        }
     }
 
     const stopTimer = () => {
         clearInterval(timerInterval.current);
+        timerInterval.current = null;
     }
 
     const handleCanvasLeftClick = useCallback((event) => {
@@ -123,6 +126,7 @@ const Multi = ({isAuthenticated, isAdmin}) => {
             console.log("Restart multi game event received:", data.cols, "/", data.rows);
             setCols(data.cols);
             setRows(data.rows);
+            startTimer()
 
             setIsGameEnded(false);
             setShowResultModal(false);
@@ -132,25 +136,32 @@ const Multi = ({isAuthenticated, isAdmin}) => {
             setIsGameStarted(true);
         })
 
-        socketRef.current.on('multi-game-waiting', () => {
-            console.log("Multi game waiting event received");
+        socketRef.current.on('multi-game-waiting', (data) => {
+            console.log("Multi game waiting event received:", data);
             stopTimer()
+            //setCellsMatrix((prevData) => [...prevData, ...data.gridCells]);
             setShowWaitingModal(true);
         })
 
         socketRef.current.on('multi-game-ended', (data) => {
             console.log("Multi game ended event received:", data);
-            setResults(data)
+            stopTimer()
+            const filteredResults = data
+                .filter(result => result.timeElapsed) // Filtering out results with falsy timeElapsed (you can adjust the condition based on your requirements)
+                .sort((a, b) => a.timeElapsed - b.timeElapsed);
+            setResults(filteredResults)
             setShowWaitingModal(false)
             removeClickListeners();
             setIsGameEnded(true)
             setShowResultModal(true)
-            setIsGameStarted(false)
+            if (!isHost)
+                setIsGameStarted(false)
             setRefresh(!refresh)
         })
 
         socketRef.current.on('left-click-multi', (data) => {
             console.log('Received left-click-multi event:', data);
+            startTimer()
 
             if (data.gameEnded) {
                 // Moved
@@ -189,6 +200,7 @@ const Multi = ({isAuthenticated, isAdmin}) => {
 
         socketRef.current.on('right-click-multi', (data) => {
             console.log('Received right-click-multi event:', data);
+            startTimer()
 
             // Update the number of bombs
             const bombs = document.getElementById('bombs');
@@ -298,22 +310,28 @@ const Multi = ({isAuthenticated, isAdmin}) => {
         }
     }, []);
 
-    // Start Game
+    // Start/Restart Game
     useEffect(() => {
-        const startMultiGameButton = document.getElementById('startMultiGame1');
+        const startMultiGameButton = document.getElementById('startMultiGame');
 
         const handleClick = (event) => {
             event.preventDefault();
 
-            if (isGameStarted) {
-                setIsGameStarted(false);
+            if (isGameEnded) {
                 setIsGameEnded(false);
                 setShowResultModal(false);
+                setCellsMatrix([]);
+                setRefresh(false);
+
+                socketRef.current.emit('restart-multi-game', {roomId: roomId, roomName: roomName, rows: rows, cols: cols });
+                console.log("Restart multi game button clicked:", rows, "/", cols);
+            } else {
+                setIsGameStarted(true);
+                // drawGrid(rows, cols, cellSize);
+                socketRef.current.emit('start-multi-game', {roomId: roomId, roomName: roomName, rows: rows, cols: cols });
+                console.log("Start multi game button clicked:", rows, "/", cols);
+
             }
-            setIsGameStarted(true);
-            // drawGrid(rows, cols, cellSize);
-            socketRef.current.emit('start-multi-game', {roomId: roomId, roomName: roomName, rows: rows, cols: cols });
-            console.log("Start multi game button clicked:", rows, "/", cols);
         };
 
         if (startMultiGameButton) {
@@ -334,43 +352,7 @@ const Multi = ({isAuthenticated, isAdmin}) => {
                 startMultiGameButton.removeEventListener('click', handleClick);
             }
         };
-    }, [isDataLoaded, rows, cols]);
-
-    // Restart Game
-    useEffect(() => {
-        const restartMultiGameButton = document.getElementById('restartMultiGame');
-
-        const handleClick = (event) => {
-            event.preventDefault();
-
-            setIsGameStarted(false);
-            setIsGameEnded(false);
-            setShowResultModal(false);
-            setCellsMatrix([]);
-            setRefresh(false);
-
-            socketRef.current.emit('restart-multi-game', {roomId: roomId, roomName: roomName, rows: rows, cols: cols });
-            console.log("Restart multi game button clicked:", rows, "/", cols);
-        };
-
-        if (restartMultiGameButton) {
-            console.log("restartMultiGameButton found");
-
-            // Remove previous event listener if it exists
-            restartMultiGameButton.removeEventListener('click', handleClick);
-
-            // Add a new event listener
-            restartMultiGameButton.addEventListener('click', handleClick);
-        } else {
-            console.log("restartMultiGameButton not found");
-        }
-
-        return () => {
-            if (restartMultiGameButton) {
-                restartMultiGameButton.removeEventListener('click', handleClick);
-            }
-        }
-    }, [refresh]);
+    }, [isDataLoaded, rows, cols, refresh]);
 
     // Draw the grid if game started
     useEffect(() => {
@@ -424,20 +406,14 @@ const Multi = ({isAuthenticated, isAdmin}) => {
                                     </div>
                                 ) : (
                                     <div>
-                                        {isHost && !isGameStarted ? (
-                                            <div className={styles.startContainer}>
-                                                <form>
-                                                    <label htmlFor="row">Row</label>
-                                                    <input type="number" id="row" name="row" min="5" max="100" value={rows} onChange={handleRowInput}/>
-                                                    <label htmlFor="col">Col</label>
-                                                    <input type="number" id="col" name="col" min="5" max="100" value={cols} onChange={handleColInput}/>
-                                                    <button id="startMultiGame1" type="submit">Start</button>
-                                                </form>
-                                            </div>
-                                        ) : isHost && showResultModal ? (
+                                        {isHost ? (
                                                 <div className={styles.modalContent}>
                                                     <div className={styles.modalHeader}>
-                                                        <h2>Game ended</h2>
+                                                        {isGameEnded ? (
+                                                                <h2>Game ended</h2>
+                                                        ) : (
+                                                                <h2>Start game</h2>
+                                                        )}
                                                     </div>
                                                     <div className={styles.modalBody}>
                                                         <form>
@@ -445,28 +421,30 @@ const Multi = ({isAuthenticated, isAdmin}) => {
                                                             <input type="number" id="row" name="row" min="5" max="100" value={rows} onChange={handleRowInput}/>
                                                             <label htmlFor="col">Col</label>
                                                             <input type="number" id="col" name="col" min="5" max="100" value={cols} onChange={handleColInput}/>
-                                                            <button id="restartMultiGame" type="submit">Start</button>
+                                                            <button id="startMultiGame" type="submit">Start</button>
                                                         </form>
                                                     </div>
                                                     <div className={styles.modalFooter}>
-                                                        <table>
-                                                            <thead>
-                                                            <tr>
-                                                                <th>Rank</th>
-                                                                <th>Username</th>
-                                                                <th>Time</th>
-                                                            </tr>
-                                                            </thead>
-                                                            <tbody>
-                                                            {results.map((result, index) => {
-                                                                return <tr key={index}>
-                                                                    <td>{index + 1}</td>
-                                                                    <td>{result.username}</td>
-                                                                    <td>{result.timeElapsed}</td>
+                                                        {showResultModal &&
+                                                            <table>
+                                                                <thead>
+                                                                <tr>
+                                                                    <th>Rank</th>
+                                                                    <th>Username</th>
+                                                                    <th>Time</th>
                                                                 </tr>
-                                                            })}
-                                                            </tbody>
-                                                        </table>
+                                                                </thead>
+                                                                <tbody>
+                                                                {results.map((result, index) => {
+                                                                    return <tr key={index}>
+                                                                        <td>{index + 1}</td>
+                                                                        <td>{result.username}</td>
+                                                                        <td>{result.timeElapsed}</td>
+                                                                    </tr>
+                                                                })}
+                                                                </tbody>
+                                                            </table>
+                                                        }
                                                     </div>
                                                 </div>
                                         ) : showResultModal ? (
