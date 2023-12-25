@@ -7,15 +7,17 @@ class Grid {
      * If not, generated bombs will be placed randomly around the clicked point.
      * @param {number} length - Number of rows
      * @param {number} width - Number of columns
+     * @param {username} username - Username of the player (optional)
      * @param {number} numBombs - Number of bombs (optional)
      * @param {Array} bombCoordinates - Array of {row, col} representing bomb coordinates (optional)
      * @param {number} clickRow - Row where the user clicked
      * @param {number} clickCol - Column where the user clicked
      */
-    constructor(length, width, numBombs = 0, bombCoordinates = [], clickRow= -1, clickCol= -1) {
+    constructor(length, width, username = null, numBombs = 0, bombCoordinates = [], clickRow= -1, clickCol= -1) {
         this.length = length;
         this.width = width;
         this.matrix = [];
+        this.username = username;
         if (numBombs === 0) {
             // Initialize matrix with cells set to 0
             for (let i = 0; i < length; i++) {
@@ -308,7 +310,8 @@ class Grid {
             }
         }
 
-        if (isBomb) {
+        // this.username is null when the game is single player
+        if (isBomb && this.username !== null) {
             revealedCells = this.revealGrid();
         }
 

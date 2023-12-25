@@ -2,8 +2,7 @@
 const { Server } = require("socket.io");
 const sharedSession = require('express-socket.io-session');
 const {getInstance} = require("../core/roomData");
-// Database
-
+const roomData = getInstance();
 
 // Export a function that takes the server instance and session middleware
 module.exports = function configureSocket(server, sessionMiddleware, app) {
@@ -16,6 +15,8 @@ module.exports = function configureSocket(server, sessionMiddleware, app) {
 
     io.on('connection', (socket) => {
         console.log('New socket connection', socket.id);
+
+        //TODO Refactor the two left and right click functions
 
         // =========== SOLO ===========
         //          Solo socket
@@ -62,8 +63,65 @@ module.exports = function configureSocket(server, sessionMiddleware, app) {
         //          Multi socket
         // =========== MULTI ===========
 
+        socket.on('left-click-multi', (data) => {
+            const {row, col, roomId, username} = data;
+            const room = roomData.getMultiRoom(roomId);
+            console.log("Handle left click multi:", row, col, roomId, username)
+            const game = room.game;
+            const res = game.handleMultiLeftClick(row, col, username);
+
+            if (res.gameEnded) {
+                console.log("Game ended:", res.gameEnded, "RoomId:", roomId);
+                const room = roomData.getMultiRoom(roomId);
+                console.log("Room:", room)
+                console.log("Check if all multi games ended:", game.checkIfAllMultiGamesEnded(room.numPlayers), room.numPlayers)
+                if (game.checkIfAllMultiGamesEnded(room.numPlayers)) {
+                    room.finished = true;
+                    room.winner = username;
+                    const results = game.getMultiResults();
+                    io.to(data.roomName).emit('multi-game-ended', results);
+                }
+                else {
+                    socket.emit('multi-game-waiting');
+                }
+            } else {
+                //console.log("res:", res);
+                console.log('left-click-multi', row, col, "RoomId:", roomId);
+                //console.log("Res:", res)
+                socket.emit('left-click-multi', res);
+            }
+        })
+
+        socket.on('right-click-multi', (data) => {
+            const {row, col, roomId, username} = data;
+            const room = roomData.getMultiRoom(roomId);
+            const game = room.game;
+            const res = game.handleMultiRightClick(row, col, username);
+
+            if (res.gameEnded) {
+                console.log("Game ended:", res.gameEnded, "RoomId:", roomId);
+                const room = roomData.getMultiRoom(roomId);
+                console.log("Room:", room)
+                console.log("Check if all multi games ended:", game.checkIfAllMultiGamesEnded(room.numPlayers), room.numPlayers)
+                if (game.checkIfAllMultiGamesEnded(room.numPlayers)) {
+                    room.finished = true;
+                    room.winner = username;
+                    const results = game.getMultiResults();
+                    io.to(data.roomName).emit('multi-game-ended', results);
+                }
+                else {
+                    socket.emit('multi-game-waiting');
+                }
+            } else {
+                //console.log("res:", res);
+                console.log('right-click-multi', row, col, "RoomId:", roomId);
+                //console.log("Res:", res)
+                socket.emit('right-click-multi', res);
+            }
+        })
+
         socket.on('create-room', (data) => {
-            console.log("Socket create-room for ", data.roomName);
+            console.log("Socket create-room: ", data.roomName);
             socket.join(data.roomName);
         })
 
@@ -73,7 +131,8 @@ module.exports = function configureSocket(server, sessionMiddleware, app) {
         })
 
         socket.on('leave-room', (data) =>{
-            console.log("Socket leave-room", data.roomName);
+            //TODO: Check if all players have finished when someone leaves
+            console.log("Socket leave-room", data.roomName, data.players);
             const players = data.players;
             const username = data.username;
 
@@ -86,6 +145,24 @@ module.exports = function configureSocket(server, sessionMiddleware, app) {
             const players = data.players
             //console.log("Socket propagate-user-data", players, " Room:", data.roomName);
             io.to(data.roomName).emit('receive-user-data', {players:players})
+        })
+
+        socket.on('start-multi-game', (data) => {
+            console.log("Socket start-game", data.roomName, "Data:", data);
+            const roomId = data.roomId;
+            const rows = data.rows;
+            const cols = data.cols;
+            roomData.launchMultiRoom(roomId, rows, cols);
+            io.to(data.roomName).emit('start-multi-game', {cols:data.cols, rows:data.rows})
+        })
+
+        socket.on('restart-multi-game', (data) => {
+            console.log("Socket restart-game", data.roomName, "Data:", data);
+            const roomId = data.roomId;
+            const rows = data.rows;
+            const cols = data.cols;
+            roomData.restartMultiRoom(roomId, rows, cols);
+            io.to(data.roomName).emit('start-multi-game', {cols:data.cols, rows:data.rows})
         })
     });
 

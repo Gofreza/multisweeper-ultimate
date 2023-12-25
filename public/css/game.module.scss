@@ -1,4 +1,8 @@
 
+// ===========================| Solo |=========================== //
+//                              Solo
+// ===========================| Solo |=========================== //
+
 .canvasPage {
     display: flex;
     flex-direction: column;
@@ -42,6 +46,67 @@
     }
 }
 
+// ===========================| Multi |=========================== //
+//                              Multi
+// ===========================| Multi |=========================== //
+
+.multiContainer {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+
+    .startContainer {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 20px;
+        width: 100%;
+        padding: 0.5rem;
+        border-radius: 0.5rem;
+        background-color: #fff;
+        box-shadow: 0 0 0.5rem rgba(0, 0, 0, 0.5);
+        margin-bottom: 0.5rem;
+    }
+
+    .gameContainer {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+
+        .playersContainer {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+
+            .playerInfo {
+                display: flex;
+                flex-direction: column;
+                width: 100%;
+                padding: 0.5rem;
+                border-radius: 0.5rem;
+                background-color: #fff;
+                box-shadow: 0 0 0.5rem rgba(0, 0, 0, 0.5);
+                margin-bottom: 0.5rem;
+
+                span {
+                    font-weight: 500;
+                }
+
+            }
+        }
+    }
+
+    .chatContainer {
+
+    }
+}
+
+// ===========================| Modal |=========================== //
+//                              Modal
+// ===========================| Modal |=========================== //
+
 .modal {
     display: flex;
     flex-direction: column;
@@ -50,44 +115,44 @@
     position: fixed;
     top: 35%;
     left: 45%;
+}
 
-    .modalContent {
+.modalContent {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: fit-content;
+    padding: 1rem;
+    background-color: #fff;
+    border-radius: 0.5rem;
+    box-shadow: 0 0 0.5rem rgba(0, 0, 0, 0.5);
+
+    .modalHeader, .modalBody, .modalFooter {
         display: flex;
-        flex-direction: column;
         justify-content: center;
         align-items: center;
         width: 100%;
         height: fit-content;
         padding: 1rem;
-        background-color: #fff;
-        border-radius: 0.5rem;
-        box-shadow: 0 0 0.5rem rgba(0, 0, 0, 0.5);
+    }
 
-        .modalHeader, .modalBody, .modalFooter {
+    .modalHeader {
+        .close {
             display: flex;
             justify-content: center;
             align-items: center;
-            width: 100%;
-            height: fit-content;
-            padding: 1rem;
-        }
-
-        .modalHeader {
-            .close {
-                display: flex;
-                justify-content: center;
-                align-items: center;
-                position: absolute;
-                top: 0;
-                right: 0;
-                width: 2rem;
-                height: 2rem;
-                padding: 0.5rem;
-                border-radius: 50%;
-                background-color: #fff;
-                box-shadow: 0 0 0.5rem rgba(0, 0, 0, 0.5);
-                cursor: pointer;
-            }
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 2rem;
+            height: 2rem;
+            padding: 0.5rem;
+            border-radius: 50%;
+            background-color: #fff;
+            box-shadow: 0 0 0.5rem rgba(0, 0, 0, 0.5);
+            cursor: pointer;
         }
     }
 }

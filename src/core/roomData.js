@@ -1,5 +1,7 @@
 const Game = require("./game");
 
+const DIFFICULTY_NORMAL = 0.15;
+
 class RoomData {
 
     // Singleton ID of rooms
@@ -83,9 +85,20 @@ class RoomData {
     }
 
     launchMultiRoom(roomId, row, col) {
-        //Add ready check here or before
-        this.multiRooms[roomId].game = new Game(row, col);
+        //TODO: Add ready check here or before
+        console.log("Launching game in room " + roomId)
+        const numBombs = Math.floor(row * col * DIFFICULTY_NORMAL);
+        this.multiRooms[roomId].game = new Game(row, col, true, numBombs);
         this.multiRooms[roomId].started = true;
+    }
+
+    restartMultiRoom(roomId, row, col) {
+        console.log("Restarting game in room " + roomId)
+        const numBombs = Math.floor(row * col * DIFFICULTY_NORMAL);
+        this.multiRooms[roomId].game = new Game(row, col, true, numBombs);
+        this.multiRooms[roomId].started = true;
+        this.multiRooms[roomId].finished = false;
+        this.multiRooms[roomId].winner = null;
     }
 
     joinMultiRoom(roomId, playerName) {

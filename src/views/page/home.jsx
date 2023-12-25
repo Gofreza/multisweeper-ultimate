@@ -161,7 +161,6 @@ const Home = ({isAuthenticated, isAdmin}) => {
             {isAuthenticated && (
                 <div className={styles.roomsContainer}>
                     <div className={styles.roomsList}>
-                        <button id="getRooms">Get Rooms</button>
                         <table>
                             <thead>
                             <tr>
@@ -171,6 +170,7 @@ const Home = ({isAuthenticated, isAdmin}) => {
                                 <th>Playing</th>
                                 <th>Ranked</th>
                                 <th>Join</th>
+                                <th><button id="getRooms" className={styles.syncRooms}><i className='bx bx-sync icon '></i></button></th>
                             </tr>
                             </thead>
                             <tbody>
