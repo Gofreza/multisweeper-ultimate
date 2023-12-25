@@ -119,6 +119,19 @@ const Multi = ({isAuthenticated, isAdmin}) => {
             setIsGameStarted(true);
         })
 
+        socketRef.current.on('restart-multi-game', (data) => {
+            console.log("Restart multi game event received:", data.cols, "/", data.rows);
+            setCols(data.cols);
+            setRows(data.rows);
+
+            setIsGameEnded(false);
+            setShowResultModal(false);
+            setCellsMatrix([]);
+            setRefresh(false);
+
+            setIsGameStarted(true);
+        })
+
         socketRef.current.on('multi-game-waiting', () => {
             console.log("Multi game waiting event received");
             stopTimer()
@@ -132,6 +145,7 @@ const Multi = ({isAuthenticated, isAdmin}) => {
             removeClickListeners();
             setIsGameEnded(true)
             setShowResultModal(true)
+            setIsGameStarted(false)
             setRefresh(!refresh)
         })
 

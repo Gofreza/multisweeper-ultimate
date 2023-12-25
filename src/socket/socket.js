@@ -162,7 +162,7 @@ module.exports = function configureSocket(server, sessionMiddleware, app) {
             const rows = data.rows;
             const cols = data.cols;
             roomData.restartMultiRoom(roomId, rows, cols);
-            io.to(data.roomName).emit('start-multi-game', {cols:data.cols, rows:data.rows})
+            io.to(data.roomName).emit('restart-multi-game', {cols:data.cols, rows:data.rows})
         })
     });
 
