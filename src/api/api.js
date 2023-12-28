@@ -252,15 +252,32 @@ router.post('/api/join-multi-room', (req, res) => {
         const username = req.session.accountUsername;
         const roomIdJoined = roomData.joinMultiRoom(roomId, username);
         const room = roomData.getMultiRoom(roomIdJoined);
+        console.log("Room:", room)
 
         if (room.finished) {
-            //@TODO: Return the finished grid
+            //@TODO: Return the results
+            const results = room.game.getMultiResults();
+            res.status(200).send({ roomId: roomIdJoined, roomName: room.name, players: room.players, ranked: room.ranked, results: results });
         } else if (room.started) {
-            //@TODO: Return the grid of the user asking
-            //Need to save the currentGrid of each player
-            const currentGrid = room.game.currentGrid;
+            const game = room.game;
+            const grid = game.getMultiGrid(username);
+            const currentGrid = grid.currentGrid;
+            const timeElapsed = grid.timeElapsed;
+            const numBombs = grid.currentGrid.numBombs;
 
-            res.status(200).send({ roomId: roomIdJoined, room: grid, isFinished: true, isGameWin: room.win, numBombs: 0 });
+            // TODO Maybe do something for the exploded bombs
+            // TODO They are transformed into flag for now
+            // Set all the non-visible cells to -1
+            // Tell the client only where are the cells that he discovered
+            for (let i = 0; i < currentGrid.length; i++) {
+                for (let j = 0; j < currentGrid.width; j++) {
+                    if (!currentGrid.matrix[i][j].isVisible() && !currentGrid.matrix[i][j].isFlagged()) {
+                        currentGrid.matrix[i][j].setNumber(-5);
+                    }
+                }
+            }
+
+            res.status(200).send({ roomId: roomIdJoined, roomName: room.name, players: room.players, ranked: room.ranked, started: true, grid: currentGrid, numBombs:numBombs, timeElapsed: timeElapsed });
         } else {
 
             // Check if the user is already in the room

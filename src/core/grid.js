@@ -28,6 +28,7 @@ class Grid {
                 }
                 this.matrix.push(row);
             }
+            this.numbombs = 0;
         } else {
 
             this.numbombs = numBombs;

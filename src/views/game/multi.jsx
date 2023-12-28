@@ -23,6 +23,8 @@ const Multi = ({isAuthenticated, isAdmin}) => {
     const [cols, setCols] = useState(10);
     const isHost = players[0] === getCookies()['username'];
     const roomId = getCookies()['multiRoomId'];
+    const [numBombsJoin, setNumBombsJoin] = useState(0);
+    const [timeElapsedJoin, setTimeElapsedJoin] = useState(0);
     const [isGameStarted, setIsGameStarted] = useState(false);
     const cellSize = 40;
     const timerInterval = useRef(null);
@@ -41,9 +43,11 @@ const Multi = ({isAuthenticated, isAdmin}) => {
         setCols(event.target.value);
     }
 
-    const startTimer = () => {
+    const startTimer = (base = 0) => {
         const timer = document.getElementById('timer');
-        let time = 0;
+        let time = base;
+        if (base > 0)
+            timer.innerHTML = time.toString();
 
         if (timerInterval.current === null) {
             timerInterval.current = setInterval(() => {
@@ -126,7 +130,6 @@ const Multi = ({isAuthenticated, isAdmin}) => {
             console.log("Restart multi game event received:", data.cols, "/", data.rows);
             setCols(data.cols);
             setRows(data.rows);
-            startTimer()
 
             setIsGameEnded(false);
             setShowResultModal(false);
@@ -255,6 +258,42 @@ const Multi = ({isAuthenticated, isAdmin}) => {
                 .then(response => response.json())
                 .then(data => {
                     console.log("Join multi room:", data);
+
+                    if (data.started) {
+                        console.log("Grid:", data.grid)
+                        setCols(data.grid.width);
+                        setRows(data.grid.length);
+
+                        // Timer
+                        setTimeElapsedJoin(data.timeElapsed);
+
+                        // Bombs
+                        setNumBombsJoin(data.grid.numbombs);
+
+                        // Grid
+                        let res = [];
+                        for (let x = 0; x < rows; x++) {
+                            for (let y = 0; y < cols; y++) {
+                                if (data.grid.matrix[x][y].flagged) {
+                                    res.push({row: x, col: y, flagged: true})
+                                } else if (data.grid.matrix[x][y].number !== -5) {
+                                    res.push({row: x, col: y, number: data.grid.matrix[x][y].number})
+                                }
+                            }
+                        }
+                        // Flatten the array of arrays
+                        const flattenedRes = res.flat();
+
+                        setCellsMatrix((prevData) => [...prevData, ...flattenedRes]);
+
+                        setIsGameStarted(true);
+                    }
+                    else if (data.results){
+                        console.log("Results:", data.results)
+                        setIsGameEnded(true);
+                        setShowResultModal(true)
+                        setResults(data.results)
+                    }
                     setPlayers(data.players);
                     socketRef.current.emit('join-room', {roomName:roomName})
                     socketRef.current.emit('propagate-user-data', {players: data.players, roomName: roomName})
@@ -322,6 +361,8 @@ const Multi = ({isAuthenticated, isAdmin}) => {
                 setShowResultModal(false);
                 setCellsMatrix([]);
                 setRefresh(false);
+                setNumBombsJoin(0);
+                setTimeElapsedJoin(0);
 
                 socketRef.current.emit('restart-multi-game', {roomId: roomId, roomName: roomName, rows: rows, cols: cols });
                 console.log("Restart multi game button clicked:", rows, "/", cols);
@@ -368,6 +409,16 @@ const Multi = ({isAuthenticated, isAdmin}) => {
             addClickListeners();
         }
     }, [isGameStarted]);
+
+    // Update board after a rejoined player
+    useEffect(() => {
+        if (numBombsJoin > 0) {
+            const bombs = document.getElementById('bombs');
+            bombs.innerHTML = ((Math.ceil(rows * cols * DIFFICULTY_NORMAL)) - numBombsJoin).toString();
+            stopTimer();
+            startTimer(timeElapsedJoin);
+        }
+    }, [numBombsJoin])
 
     // Redraw the grid when cellsMatrix is updated
     useEffect(() => {

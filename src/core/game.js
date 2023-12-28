@@ -230,6 +230,10 @@ class Game {
         }
     }
 
+    getMultiGrid(username) {
+        return this.multiGrids.find((grid) => grid.username === username);
+    }
+
     handleLeftClick(row, col, username = null) {
         if (!this.isGameStarted) {
             this.isGameStarted = true;
@@ -343,6 +347,7 @@ class Game {
                 if (this.multiplayer) {
                     mainGrid.setExploded(row, col);
                     this.numBombsExploded++;
+                    userGrid.numbombs = userGrid.numbombs - 1;
                     const res = mainGrid.revealCell(row, col, false);
                     mainGrid.toggleFlag(row, col);
                     res.map((r) => {
@@ -410,6 +415,7 @@ class Game {
                         mainGrid.toggleFlag(r.row, r.col);
                         userGrid.setExploded(r.row, r.col);
                         userGrid.toggleFlag(r.row, r.col);
+                        userGrid.numbombs = userGrid.numbombs - 1;
                     }
                     userGrid.setNumber(r.row, r.col, r.number);
                     userGrid.setVisible(r.row, r.col);
@@ -508,6 +514,11 @@ class Game {
 
             // Flag the client cell
             if (username) {
+                if (userGrid.isFlagged(row, col)) {
+                    userGrid.numbombs = userGrid.numbombs - 1;
+                } else {
+                    userGrid.numbombs = userGrid.numbombs + 1;
+                }
                 userGrid.toggleFlag(row, col);
             } else {
                 this.currentGrid.toggleFlag(row, col);
