@@ -23,7 +23,7 @@ const server = http.createServer(app); // Use http.createServer to create a serv
 // Serve static files from the "public" directory
 app.use(express.static(path.join(__dirname, '/public')));
 if (process.env.NODE_ENV === 'production') {
-    app.use(express.static(path.join(__dirname, '/dist')));
+    app.use(express.static(path.join(__dirname, '/build')));
 }
 //app.use(express.static(path.join(__dirname, '/dist'))); /* For production */
 app.use(express.json());
@@ -59,7 +59,7 @@ app.get('*', (req, res) => {
     if (process.env.NODE_ENV === 'development') {
         res.sendFile(path.join(__dirname, 'public/html', 'index.html'));
     } else {
-        res.sendFile(path.join(__dirname, 'dist', 'index.html'));
+        res.sendFile(path.join(__dirname, 'build', 'index.html'));
     }
 })
 

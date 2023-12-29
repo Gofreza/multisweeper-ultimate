@@ -5,15 +5,15 @@
   "source": "./src/views/index/index.jsx",
   "main": "dist/index.js",
   "scripts": {
+    "start": "NODE_ENV=production node server.js",
     "start-web": "parcel ./src/views/index/index.jsx",
     "clean": "rm -rf dist",
-    "build": "NODE_ENV=production npm run clean && parcel build --target frontend",
-    "start": "NODE_ENV=production npm run build && node server.js"
+    "build": "NODE_ENV=production npm run clean && parcel build --target frontend"
   },
   "targets": {
     "frontend": {
       "source": "./public/html/index.html",
-      "distDir": "./dist",
+      "distDir": "./build",
       "context": "browser",
       "includeNodeModules": true
     }
