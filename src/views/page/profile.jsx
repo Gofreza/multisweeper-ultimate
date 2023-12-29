@@ -41,6 +41,7 @@ const Profile = ({isAuthenticated, isAdmin}) => {
     }
 
     useEffect(() => {
+        document.title = "MultiSweeper - Profile";
         const getStats = async () => {
             try {
                 const response = await fetch('/api/get-stats');

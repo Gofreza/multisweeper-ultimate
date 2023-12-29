@@ -2,6 +2,7 @@ import * as React from "react";
 import styles from "/public/css/login.module.css";
 import SideMenu from "../menu/sideMenu";
 import {useNavigate} from "react-router-dom";
+import {useEffect} from "react";
 
 const ChangePassword = ({ isAuthenticated, isAdmin}) => {
 
@@ -53,6 +54,11 @@ const ChangePassword = ({ isAuthenticated, isAdmin}) => {
             console.error('Error changing password:', error);
         }
     }
+
+    useEffect(() => {
+        // Set the title when the component mounts
+        document.title = "MultiSweeper - Change Password";
+    }, []);
 
     return (
         <>

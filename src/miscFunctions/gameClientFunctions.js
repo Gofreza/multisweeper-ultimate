@@ -123,8 +123,9 @@ const redrawGrid = (cellsMatrix, row, col, cellSize) => {
 
             if (cell) {
                 if (cell.flagged) {
-                    // Draw a flag
-                    ctx.fillStyle = "#ff0000"; // Set the fill color to red
+                    // Set the background color
+                    ctx.fillStyle = "#999999";
+                    ctx.fillRect(x, y, cellSize, cellSize);
 
                     // Set flag dimensions and position
                     const flagWidth = cellSize / 2;
@@ -132,8 +133,33 @@ const redrawGrid = (cellsMatrix, row, col, cellSize) => {
                     const flagX = x + cellSize / 4;
                     const flagY = y + cellSize / 4;
 
-                    // Draw the flag
-                    ctx.fillRect(flagX, flagY, flagWidth, flagHeight);
+                    const xF = flagX + flagWidth / 2;
+                    const yF = flagY + flagHeight / 2;
+                    const radius = flagWidth / 2;
+                    const offset = flagWidth / 4;
+
+                    // Draw a flag
+                    ctx.fillStyle = "#ff0000"; // Set the fill color to red
+                    // Draw the flag shape
+                    ctx.moveTo(xF - 2, yF + radius);
+                    ctx.lineTo(xF - 3.5, yF - 1);
+                    ctx.stroke();
+                    ctx.moveTo(xF - 3, yF - 1);
+                    ctx.lineTo(xF - radius / 2, yF - radius - offset);
+                    ctx.stroke();
+                    ctx.lineTo(xF + radius + offset, yF - radius / 2 - offset);
+                    ctx.stroke();
+                    ctx.lineTo(xF - 3, yF - 1);
+                    ctx.stroke();
+
+                    // Draw additional lines
+                    ctx.moveTo(xF - 8, yF + radius);
+                    ctx.lineTo(xF + 4, yF + radius);
+                    ctx.stroke();
+
+                    ctx.closePath();
+                    ctx.fill();
+
 
                     //ctx.fillRect(col * cellSize + cellSize / 4, row * cellSize + cellSize / 4, cellSize / 2, cellSize / 2); // Draw a flag
                 } else {

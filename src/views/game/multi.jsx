@@ -103,15 +103,20 @@ const Multi = ({isAuthenticated, isAdmin}) => {
 
     // Initialize the game
     useEffect(() => {
+        document.title = "MultiSweeper - Multiplayer - " + roomName;
         const cookies = getCookies();
         setIsDataLoaded(false);
+        const socketServerURL =
+            process.env.NODE_ENV === 'development'
+                ? 'http://127.0.0.1:8000'
+                : 'https://www.multisweeper.fr/';
 
         // ================ SOCKET.IO ================
         //             Socket.io events
         // ================ SOCKET.IO ================
 
         // Connect to the WebSocket server
-        socketRef.current = io('https://www.multisweeper.fr/');
+        socketRef.current = io(socketServerURL);
 
         socketRef.current.on('receive-user-data', (data) => {
             const players = data.players;

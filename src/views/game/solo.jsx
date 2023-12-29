@@ -113,7 +113,13 @@ const Solo = ({isAuthenticated, isAdmin}) => {
     }, [cellsMatrix]);
 
     useEffect(() => {
+        document.title = "MultiSweeper - Solo";
         const cookies = getCookies();
+
+        const socketServerURL =
+            process.env.NODE_ENV === 'development'
+                ? 'http://127.0.0.1:8000'
+                : 'https://www.multisweeper.fr/';
 
         if (cookies['roomId']) {
             fetch('/api/join-solo-room', {
@@ -180,7 +186,7 @@ const Solo = ({isAuthenticated, isAdmin}) => {
                 })
         }
         // Connect to the WebSocket server
-        socketRef.current = io('https://www.multisweeper.fr/');
+        socketRef.current = io(socketServerURL);
 
         // Listen for events
         socketRef.current.on('connect', () => {

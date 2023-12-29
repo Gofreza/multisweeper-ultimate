@@ -139,7 +139,7 @@ class Game {
             }
         }
 
-        console.log("Bomb things:", bombNumber, flagNumber, visibleNonBombCells, "Game ended:", bombNumber === flagNumber && visibleNonBombCells === (this.rows * this.cols - bombNumber));
+        // console.log("Bomb things:", bombNumber, flagNumber, visibleNonBombCells, "Game ended:", bombNumber === flagNumber && visibleNonBombCells === (this.rows * this.cols - bombNumber));
         return bombNumber === flagNumber && visibleNonBombCells === (this.rows * this.cols - bombNumber);
 
     }
@@ -250,7 +250,7 @@ class Game {
         }
 
         if (!this.grid.isVisible(row, col) && !this.grid.isFlagged(row, col)) {
-            console.log("Cell:",this.grid.matrix[row][col].toString());
+            // console.log("Cell:",this.grid.matrix[row][col].toString());
 
             if (this.grid.hasBomb(row, col)) {
                 if (this.multiplayer) {
@@ -280,7 +280,7 @@ class Game {
                     }
                 })
 
-                console.log("Game ended:", this.checkIfGameEnded());
+                // console.log("Game ended:", this.checkIfGameEnded());
                 if (this.checkIfGameEnded()) {
                     this.isGameEnded = true;
                     this.isGameWin = true;
@@ -294,9 +294,9 @@ class Game {
 
         if (this.grid.isVisible(row, col) && !this.grid.isFlagged(row, col)) {
             const res = this.grid.revealNeighbours(row, col);
-            console.log("res:", res);
+            // console.log("res:", res);
 
-            console.log("Game ended:", this.checkIfGameEnded());
+            // console.log("Game ended:", this.checkIfGameEnded());
             if (this.checkIfGameEnded()) {
                 this.isGameEnded = true;
                 this.isGameWin = true;
@@ -318,7 +318,7 @@ class Game {
                 }
             })
 
-            console.log("Neighbors:", res);
+            // console.log("Neighbors:", res);
             return res;
         }
 
@@ -470,7 +470,7 @@ class Game {
                 this.currentGrid.toggleFlag(row, col);
             }
 
-            console.log("Game ended:", this.checkIfGameEnded());
+            // console.log("Game ended:", this.checkIfGameEnded());
             if (this.checkIfGameEnded()) {
                 this.isGameEnded = true;
                 this.isGameWin = true;

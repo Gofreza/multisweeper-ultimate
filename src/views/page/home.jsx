@@ -61,6 +61,10 @@ const Home = ({isAuthenticated, isAdmin}) => {
     }
 
     useEffect(() => {
+        document.title = "MultiSweeper - Home";
+    }, []);
+
+    useEffect(() => {
         const soloFormButton = document.getElementById('soloFormButton');
         soloFormButton.addEventListener('click', handleSoloFormButtonClick);
 

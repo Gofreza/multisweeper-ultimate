@@ -6,6 +6,7 @@ const Leaderboard = ({isAuthenticated, isAdmin}) => {
     const [leaderboard, setLeaderboard] = useState([])
 
     useEffect(() => {
+        document.title = "MultiSweeper - Leaderboard";
         const getLeaderboard = async () => {
             try {
                 const response = await fetch('/api/get-leaderboard');

@@ -6,6 +6,10 @@ import SideMenu from "../menu/sideMenu";
 const Register = ({ isAuthenticated }) => {
     const navigate = useNavigate();
 
+    React.useEffect(() => {
+        document.title = "MultiSweeper - Register";
+    }, []);
+
     // Redirect if isAuthenticated is true
     React.useEffect(() => {
         if (isAuthenticated) {

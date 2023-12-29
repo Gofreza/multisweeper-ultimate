@@ -31,7 +31,7 @@ module.exports = function configureSocket(server, sessionMiddleware, app) {
             const res = game.handleLeftClick(row, col);
 
             if (res.gameEnded) {
-                console.log("Game ended:", res.gameEnded);
+                console.log("Solo Game ended:", res.gameEnded);
                 const room = roomData.getSoloRoom(roomId);
                 room.finished = true;
                 room.win = res.isGameWin;
@@ -49,7 +49,7 @@ module.exports = function configureSocket(server, sessionMiddleware, app) {
             const res = game.handleRightClick(row, col);
 
             if (res.gameEnded) {
-                console.log("Game ended:", res.gameEnded);
+                console.log("Solo Game ended:", res.gameEnded);
                 const room = roomData.getSoloRoom(roomId);
                 room.finished = true;
                 room.win = res.isGameWin;

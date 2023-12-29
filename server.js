@@ -21,19 +21,17 @@ const server = http.createServer(app); // Use http.createServer to create a serv
 // *** Middleware config ***
 // *************************
 
-//
-app.use(cors({
-    origin: 'https://www.multisweeper.fr/',
-    methods: 'GET,HEAD,POST',
-    credentials: true,
-}));
-
 // Serve static files from the "public" directory
 app.use(express.static(path.join(__dirname, '/public')));
 if (process.env.NODE_ENV === 'production') {
     app.use(express.static(path.join(__dirname, '/build')));
+    // Allow CORS
+    app.use(cors({
+        origin: 'https://www.multisweeper.fr/',
+        methods: 'GET,HEAD,POST',
+        credentials: true,
+    }));
 }
-//app.use(express.static(path.join(__dirname, '/dist'))); /* For production */
 app.use(express.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
