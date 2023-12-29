@@ -87,9 +87,12 @@ module.exports = function configureSocket(server, sessionMiddleware, app) {
                     room.started = false;
                     const results = game.getMultiResults();
 
-                    if (room.ranked) {
+                    if (room.ranked && room.numPlayers > 1) {
                         console.log("Ranked game, calculating points")
-                        const rankedPoints = calculateRankedPoints(results);
+                        calculateRankedPoints(results)
+                            .then(() => {
+                                console.log("Ranked points calculated")
+                            })
                     }
 
                     io.to(data.roomName).emit('multi-game-ended', results);
@@ -122,9 +125,12 @@ module.exports = function configureSocket(server, sessionMiddleware, app) {
                     room.started = false;
                     const results = game.getMultiResults();
 
-                    if (room.ranked) {
+                    if (room.ranked && room.numPlayers > 1) {
                         console.log("Ranked game, calculating points")
-                        const rankedPoints = calculateRankedPoints(results);
+                        calculateRankedPoints(results)
+                            .then(() => {
+                                console.log("Ranked points calculated")
+                        })
                     }
 
                     io.to(data.roomName).emit('multi-game-ended', results);

@@ -11,6 +11,7 @@ const getPlayersArrayFromGameResults = (gameResults) => {
 
 const calculateRankedPoints = async (results) => {
     const basePoints = 10;
+    const bonusPoints = 30;
     const winnerMultiplier = 0.3;
     const loserMultiplier = 0.1;
     const usersArray = getPlayersArrayFromGameResults(results);
@@ -42,7 +43,7 @@ const calculateRankedPoints = async (results) => {
 
         if (correspondingResult && player.position === correspondingResult.position) {
             // If position match, get base points
-            console.log(`${player.username}'s position matches: ${player.position}`);
+            console.log(`${player.username}'s position matches: ${player.position}. Gain ${basePoints} points`);
             await insertLeaderboardScore(getClient(), player.username, basePoints);
         } else {
             // If positions don't match, check if it's better or worse
@@ -50,24 +51,24 @@ const calculateRankedPoints = async (results) => {
             if (correspondingResult) {
                 // If player is in the results, check if he's better or worse
                 const positionDifference = Math.abs(player.position - correspondingResult.position);
-                const isPerformance = positionDifference <= 2; // Adjust the threshold as needed
-
-                if (player.position < correspondingResult.position) {
+                const isPerformance = positionDifference >= 2; // Adjust the threshold as needed
+                console.log(`${player.username}'s position is ${correspondingResult.position}. He should be ${player.position}. Position difference: ${positionDifference}. Is performance: ${isPerformance}`);
+                if (player.position > correspondingResult.position) {
                     // If player is better, get base points + X% of the difference
-                    const additionalPoints = isPerformance ? Math.round(winnerMultiplier * positionDifference) : 0;
+                    const additionalPoints = isPerformance ? Math.round(winnerMultiplier * bonusPoints * positionDifference) : 0;
                     const totalPoints = basePoints + additionalPoints;
-                    console.log(`${player.username} is better`);
+                    console.log(`${player.username} is better. Gain ${totalPoints} points`);
                     await insertLeaderboardScore(getClient(), player.username, totalPoints);
                 } else {
                     // If player is worse, get base points / 2
-                    const penaltyPoints = isPerformance ? Math.round(loserMultiplier * positionDifference) : 0;
-                    const totalPoints = Math.max(basePoints / 2 - penaltyPoints, 0); // Ensure points don't go negative
-                    console.log(`${player.username} is worse`);
+                    const penaltyPoints = isPerformance ? Math.round(loserMultiplier * bonusPoints * positionDifference) : 0;
+                    const totalPoints = basePoints / 2 - penaltyPoints;
+                    console.log(`${player.username} is worse. Gain ${totalPoints} points`);
                     await insertLeaderboardScore(getClient(), player.username, totalPoints);
                 }
             } else {
                 // If player is not in the results, get base points / 2
-                console.log(`${player.username} is not in the results`);
+                console.log(`${player.username} is not in the results. Gain ${basePoints / 2} points`);
                 await insertLeaderboardScore(getClient(), player.username, basePoints / 2);
             }
         }
