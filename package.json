@@ -7,7 +7,7 @@
   "scripts": {
     "start": "NODE_ENV=production node server.js",
     "start-web": "parcel ./src/views/index/index.jsx",
-    "clean": "rm -rf dist",
+    "clean": "rm -rf build",
     "build": "NODE_ENV=production npm run clean && parcel build --target frontend"
   },
   "targets": {
