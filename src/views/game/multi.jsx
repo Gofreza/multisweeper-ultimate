@@ -29,7 +29,7 @@ const Multi = ({isAuthenticated, isAdmin}) => {
     const cellSize = 40;
     const timerInterval = useRef(null);
     const canvasRef = useRef(null);
-    console.log(roomName, ranked, players)
+    //console.log(roomName, ranked, players)
 
     // ================ FUNCTIONS ================
     //              Handle functions
@@ -54,7 +54,7 @@ const Multi = ({isAuthenticated, isAdmin}) => {
                 time++;
                 timer.innerHTML = time.toString();
             }, 1000)
-            console.log("Start timer: ", timerInterval.current);
+            //console.log("Start timer: ", timerInterval.current);
         }
     }
 
@@ -66,10 +66,10 @@ const Multi = ({isAuthenticated, isAdmin}) => {
     const handleCanvasLeftClick = useCallback((event) => {
         if (timerInterval.current === null) {
             startTimer();
-            console.log("Start timer: ", timerInterval.current)
+            //console.log("Start timer: ", timerInterval.current)
         }
         const { row, col } = getGridCoordinates(event.clientX, event.clientY, cellSize);
-        console.log(`Left clicked multi on cell (${row}, ${col})`);
+        //console.log(`Left clicked multi on cell (${row}, ${col})`);
 
         socketRef.current.emit('left-click-multi', { row, col, roomId: getCookies()['multiRoomId'], username: getCookies()['username'], roomName: roomName })
 
@@ -80,23 +80,23 @@ const Multi = ({isAuthenticated, isAdmin}) => {
 
         if (timerInterval.current === null) {
             startTimer();
-            console.log("Start timer: ", timerInterval.current)
+            //console.log("Start timer: ", timerInterval.current)
         }
         const { row, col } = getGridCoordinates(event.clientX, event.clientY, cellSize);
-        console.log(`Right clicked multi on cell (${row}, ${col})`);
+        //console.log(`Right clicked multi on cell (${row}, ${col})`);
 
         socketRef.current.emit('right-click-multi', { row, col, roomId: getCookies()['multiRoomId'], username: getCookies()['username'], roomName: roomName })
 
     }, [])
 
     const addClickListeners = () => {
-        console.log("Add click listeners:", canvasRef.current)
+        //console.log("Add click listeners:", canvasRef.current)
         canvasRef.current.addEventListener('click', handleCanvasLeftClick);
         canvasRef.current.addEventListener('contextmenu', handleCanvasRightClick);
     };
 
     const removeClickListeners = () => {
-        console.log("Remove click listeners:", canvasRef.current)
+        //console.log("Remove click listeners:", canvasRef.current)
         canvasRef.current.removeEventListener('click', handleCanvasLeftClick);
         canvasRef.current.removeEventListener('contextmenu', handleCanvasRightClick);
     };
@@ -115,7 +115,7 @@ const Multi = ({isAuthenticated, isAdmin}) => {
 
         socketRef.current.on('receive-user-data', (data) => {
             const players = data.players;
-            console.log("Receive user data:", players);
+            //console.log("Receive user data:", players);
             if (players.length === 0)
                 // Force a reload of the page
                 window.location.reload();
@@ -123,14 +123,14 @@ const Multi = ({isAuthenticated, isAdmin}) => {
         })
 
         socketRef.current.on('start-multi-game', (data) => {
-            console.log("Start multi game event received:", data.cols, "/", data.rows);
+            //console.log("Start multi game event received:", data.cols, "/", data.rows);
             setCols(data.cols);
             setRows(data.rows);
             setIsGameStarted(true);
         })
 
         socketRef.current.on('restart-multi-game', (data) => {
-            console.log("Restart multi game event received:", data.cols, "/", data.rows);
+            //console.log("Restart multi game event received:", data.cols, "/", data.rows);
             setCols(data.cols);
             setRows(data.rows);
 
@@ -143,14 +143,14 @@ const Multi = ({isAuthenticated, isAdmin}) => {
         })
 
         socketRef.current.on('multi-game-waiting', (data) => {
-            console.log("Multi game waiting event received:", data);
+            //console.log("Multi game waiting event received:", data);
             stopTimer()
             //setCellsMatrix((prevData) => [...prevData, ...data.gridCells]);
             setShowWaitingModal(true);
         })
 
         socketRef.current.on('multi-game-ended', (data) => {
-            console.log("Multi game ended event received:", data);
+            //console.log("Multi game ended event received:", data);
             stopTimer()
             const filteredResults = data
                 .filter(result => result.timeElapsed) // Filtering out results with falsy timeElapsed (you can adjust the condition based on your requirements)
@@ -166,7 +166,7 @@ const Multi = ({isAuthenticated, isAdmin}) => {
         })
 
         socketRef.current.on('left-click-multi', (data) => {
-            console.log('Received left-click-multi event:', data);
+            //console.log('Received left-click-multi event:', data);
             startTimer()
 
             if (data.gameEnded) {
@@ -175,28 +175,22 @@ const Multi = ({isAuthenticated, isAdmin}) => {
                 const bombs = document.getElementById('bombs');
                 // Reveal Neighbors activated
                 if (data.neighbors) {
-                    console.log("Reveal Neighbors activated")
+                    //console.log("Reveal Neighbors activated")
                     if (data.isBomb) {
-                        console.log("Bomb found neighbor, here are the problems:", data.revealedCells)
+                        //console.log("Bomb found neighbor, here are the problems:", data.revealedCells)
                         setCellsMatrix((prevData) => [...prevData, ...data.revealedCells]);
                         data.revealedCells.forEach(_ => {
                             bombs.innerHTML = (bombs.innerHTML - 1).toString();
                         })
-                        /*setIsGameWin(false)
-                        stopTimer()
-                        setShowResultModal(true)*/
                     } else {
-                        console.log("No bomb found:", data.revealedCells)
+                        //console.log("No bomb found:", data.revealedCells)
                         setCellsMatrix((prevData) => [...prevData, ...data.revealedCells]);
                     }
                 } else {
                     if (data.isBomb) {
-                        console.log("Bomb found:", data.revealedCells)
+                        //console.log("Bomb found:", data.revealedCells)
                         setCellsMatrix((prevData) => [...prevData, ...data.revealedCells]);
                         bombs.innerHTML = (bombs.innerHTML - 1).toString();
-                        /*setIsGameWin(false)
-                        stopTimer()
-                        setShowResultModal(true)*/
                     } else {
                         setCellsMatrix((prevData) => [...prevData, ...data]);
                     }
@@ -205,7 +199,7 @@ const Multi = ({isAuthenticated, isAdmin}) => {
         })
 
         socketRef.current.on('right-click-multi', (data) => {
-            console.log('Received right-click-multi event:', data);
+            //console.log('Received right-click-multi event:', data);
             startTimer()
 
             // Update the number of bombs
@@ -223,7 +217,7 @@ const Multi = ({isAuthenticated, isAdmin}) => {
             if (data.gameEnded) {
                 // Moved
             } else {
-                console.log("Data", data)
+                //console.log("Data", data)
 
                 if (data.length > 0) {
                     setCellsMatrix((prevData) => {
@@ -247,7 +241,7 @@ const Multi = ({isAuthenticated, isAdmin}) => {
         // ================ CONNECTION ================
 
         if (cookies['multiRoomId']) {
-            console.log("Already in a multi room/Join multi room");
+            //console.log("Already in a multi room/Join multi room");
 
             fetch('/api/join-multi-room', {
                 method: 'POST',
@@ -260,10 +254,10 @@ const Multi = ({isAuthenticated, isAdmin}) => {
             })
                 .then(response => response.json())
                 .then(data => {
-                    console.log("Join multi room:", data);
+                    //console.log("Join multi room:", data);
 
                     if (data.started) {
-                        console.log("Grid:", data.grid)
+                        //console.log("Grid:", data.grid)
                         setCols(data.grid.width);
                         setRows(data.grid.length);
 
@@ -291,7 +285,7 @@ const Multi = ({isAuthenticated, isAdmin}) => {
 
                         setIsGameStarted(true);
                     } else if (data.results){
-                        console.log("Results:", data.results)
+                        //console.log("Results:", data.results)
                         setIsGameEnded(true);
                         setShowResultModal(true)
                         setResults(data.results)
@@ -299,7 +293,7 @@ const Multi = ({isAuthenticated, isAdmin}) => {
                     setPlayers(data.players);
                     socketRef.current.emit('join-room', {roomName:roomName})
                     socketRef.current.emit('propagate-user-data', {players: data.players, roomName: roomName})
-                    console.log("Send propagate-user-data event")
+                    //console.log("Send propagate-user-data event")
                 })
                 .finally(() => {
                     setIsDataLoaded(true);
@@ -318,10 +312,10 @@ const Multi = ({isAuthenticated, isAdmin}) => {
             })
                 .then(response => response.json())
                 .then(data => {
-                    console.log(data);
+                    //console.log(data);
                     setPlayers(data.players);
                     socketRef.current.emit('create-room', {roomName:roomName})
-                    console.log("Send create-room event")
+                    //console.log("Send create-room event")
                     setIsDataLoaded(true);
                 });
         }
@@ -343,7 +337,7 @@ const Multi = ({isAuthenticated, isAdmin}) => {
             })
                 .then(response => response.json())
                 .then(data => {
-                    console.log("Leave multi room:", data);
+                    //console.log("Leave multi room:", data);
                     document.cookie = "multiRoomId=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
                 });
             // Disconnect the socket
@@ -367,18 +361,18 @@ const Multi = ({isAuthenticated, isAdmin}) => {
                 setTimeElapsedJoin(0);
 
                 socketRef.current.emit('restart-multi-game', {roomId: roomId, roomName: roomName, rows: rows, cols: cols });
-                console.log("Restart multi game button clicked:", rows, "/", cols);
+                //console.log("Restart multi game button clicked:", rows, "/", cols);
             } else {
                 setIsGameStarted(true);
                 // drawGrid(rows, cols, cellSize);
                 socketRef.current.emit('start-multi-game', {roomId: roomId, roomName: roomName, rows: rows, cols: cols });
-                console.log("Start multi game button clicked:", rows, "/", cols);
+                //console.log("Start multi game button clicked:", rows, "/", cols);
 
             }
         };
 
         if (startMultiGameButton) {
-            console.log("startMultiGameButton found");
+            //console.log("startMultiGameButton found");
 
             // Remove previous event listener if it exists
             startMultiGameButton.removeEventListener('click', handleClick);
@@ -386,7 +380,7 @@ const Multi = ({isAuthenticated, isAdmin}) => {
             // Add a new event listener
             startMultiGameButton.addEventListener('click', handleClick);
         } else {
-            console.log("startMultiGameButton not found");
+            //console.log("startMultiGameButton not found");
         }
 
         // Cleanup function to remove the event listener when the component unmounts or when dependencies change
@@ -403,7 +397,7 @@ const Multi = ({isAuthenticated, isAdmin}) => {
         if (isGameStarted) {
             const bombsCanvas = document.getElementById('bombsCounter');
             drawBomb(bombsCanvas.getContext('2d'), 20, 20, 10, 4);
-            console.log("Cols:", cols, "Rows:", rows);
+            //console.log("Cols:", cols, "Rows:", rows);
             drawGrid(rows, cols, cellSize);
             const bombs = document.getElementById('bombs');
             bombs.innerHTML = (Math.ceil(rows * cols * DIFFICULTY_NORMAL)).toString();
@@ -424,7 +418,7 @@ const Multi = ({isAuthenticated, isAdmin}) => {
 
     // Redraw the grid when cellsMatrix is updated
     useEffect(() => {
-        console.log("CellsMatrix updated:", cellsMatrix)
+        //console.log("CellsMatrix updated:", cellsMatrix)
         if (isGameStarted) {
             console.log("Redraw grid")
             redrawGrid(cellsMatrix, rows, cols, cellSize);

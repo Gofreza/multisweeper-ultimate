@@ -228,7 +228,7 @@ router.post('/api/leave-solo-room', (req, res) => {
 
 router.get('/api/get-multi-rooms', (req, res) => {
     const allRooms = roomData.getAllMultiRooms();
-    console.log("Get Rooms:", allRooms);
+    //console.log("Get Rooms:", allRooms);
     res.status(200).send({ allRooms });
 })
 
@@ -252,7 +252,7 @@ router.post('/api/join-multi-room', (req, res) => {
         const username = req.session.accountUsername;
         const roomIdJoined = roomData.joinMultiRoom(roomId, username);
         const room = roomData.getMultiRoom(roomIdJoined);
-        console.log("Room:", room)
+        //console.log("Room:", room)
 
         if (room.started) {
             return res.status(400).send({ message: 'Game already started' });
@@ -295,12 +295,12 @@ router.post('/api/join-multi-room', (req, res) => {
             if (req.cookies.multiRoomId) {
                 // Already in a room
                 console.log(username + "Join Room:" + room.name)
-                console.log("Already in a room (api):", req.cookies.multiRoomId)
+                //console.log("Already in a room (api):", req.cookies.multiRoomId)
                 res.status(200).send({ roomId: roomIdJoined, roomName: room.name, ranked: room.ranked, players: room.players });
             } else {
                 // Just join the room
                 // Do +1 to the number of players
-                console.log("Join Room (api):", room.name)
+                console.log(username + "Join Room:" + room.name)
                 room.numPlayers++;
                 res.cookie('multiRoomId', roomIdJoined, {httpOnly: false})
                 res.status(200).send({ roomId: roomIdJoined, roomName: room.name, ranked: room.ranked, players: room.players });
@@ -316,7 +316,8 @@ router.post('/api/join-multi-room', (req, res) => {
 router.post('/api/leave-multi-room', (req, res) => {
     try {
         const roomId = req.body.roomId;
-        console.log("RoomId:", roomId)
+        const username = req.session.accountUsername;
+        //console.log("RoomId:", roomId)
         const room = roomData.getMultiRoom(roomId);
 
         if (!room) {
@@ -333,11 +334,10 @@ router.post('/api/leave-multi-room', (req, res) => {
             // Leave the room
             else {
                 // Remove user from players array
-                const username = req.session.accountUsername;
                 room.players = room.players.filter(player => player !== username);
                 res.status(200).send({ message: 'Multi room left' });
             }
-            console.log("Leave Room (api):", room.name)
+            console.log(username +"Leave Room (api):"+ room.name)
         }
 
     } catch (error) {

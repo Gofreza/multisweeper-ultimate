@@ -81,7 +81,7 @@ const sideMenu = ({isAuthenticated, isAdmin}) => {
                                 </Link>
                             </li>
                             <li className="nav-links">
-                                <a href="#">
+                                <a href="https://github.com/Gofreza/multisweeper-ultimate/tree/master">
                                     <i className='bx bxl-github icon'></i>
                                     <span className="text nav-text">GitHub</span>
                                 </a>

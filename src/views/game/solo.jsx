@@ -35,7 +35,7 @@ const Solo = ({isAuthenticated, isAdmin}) => {
             startTimer();
         }
         const { row, col } = getGridCoordinates(event.clientX, event.clientY, cellSize);
-        console.log(`Left clicked on cell (${row}, ${col})`);
+        //console.log(`Left clicked on cell (${row}, ${col})`);
 
         socketRef.current.emit('left-click', { row, col, roomId: getCookies()['roomId'] })
     }
@@ -46,7 +46,7 @@ const Solo = ({isAuthenticated, isAdmin}) => {
             startTimer();
         }
         const { row, col } = getGridCoordinates(event.clientX, event.clientY, cellSize);
-        console.log(`Right clicked on cell (${row}, ${col})`);
+        //console.log(`Right clicked on cell (${row}, ${col})`);
 
         socketRef.current.emit('right-click', { row, col, roomId: getCookies()['roomId'] })
     }
@@ -77,7 +77,7 @@ const Solo = ({isAuthenticated, isAdmin}) => {
         })
             .then(response => response.json())
             .then(responseJson => {
-                console.log(responseJson.message);
+                //console.log(responseJson.message);
             })
 
         document.cookie = "roomId=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
@@ -95,12 +95,12 @@ const Solo = ({isAuthenticated, isAdmin}) => {
         })
             .then(response => response.json())
             .then(responseJson => {
-                console.log('Room created N°', responseJson.roomId);
+                //console.log('Room created N°', responseJson.roomId);
                 drawGrid(row, col, cellSize);
                 // Create the 'roomId' cookie
             })
             .catch(error => {
-                console.error('Error creating room:', error);
+                //console.error('Error creating room:', error);
             })
 
         window.location.reload();
@@ -125,7 +125,7 @@ const Solo = ({isAuthenticated, isAdmin}) => {
             })
                 .then(response => response.json())
                 .then(responseJson => {
-                    console.log('Room joined N°', responseJson.roomId/*, 'in ', responseJson.room.matrix*/);
+                    //console.log('Room joined N°', responseJson.roomId/*, 'in ', responseJson.room.matrix*/);
 
                     if (responseJson.isFinished) {
                         setShowResultModal(true)
@@ -169,14 +169,14 @@ const Solo = ({isAuthenticated, isAdmin}) => {
             })
                 .then(response => response.json())
                 .then(responseJson => {
-                    console.log('Room created N°', responseJson.roomId);
+                    //console.log('Room created N°', responseJson.roomId);
                     drawGrid(row, col, cellSize);
                     const bombs = document.getElementById('bombs');
                     bombs.innerHTML = (Math.ceil(row * col * DIFFICULTY_NORMAL)).toString();
                     // Create the 'roomId' cookie
                 })
                 .catch(error => {
-                    console.error('Error creating room:', error);
+                    //console.error('Error creating room:', error);
                 })
         }
         // Connect to the WebSocket server
@@ -184,7 +184,7 @@ const Solo = ({isAuthenticated, isAdmin}) => {
 
         // Listen for events
         socketRef.current.on('connect', () => {
-            console.log('Connected to socket server');
+            //console.log('Connected to socket server');
             const bombsCanvas = document.getElementById('bombsCounter');
             // Add event listener to the canvas
             addClickListeners()
@@ -192,7 +192,7 @@ const Solo = ({isAuthenticated, isAdmin}) => {
         })
 
         socketRef.current.on('left-click', (data) => {
-            console.log('Received left-click event:', data);
+            //console.log('Received left-click event:', data);
 
             if (data.gameEnded) {
                 if (data.isGameWin) {
@@ -207,15 +207,15 @@ const Solo = ({isAuthenticated, isAdmin}) => {
             } else {
                 // Reveal Neighbors activated
                 if (data.neighbors) {
-                    console.log("Reveal Neighbors activated")
+                    //console.log("Reveal Neighbors activated")
                     if (data.isBomb) {
-                        console.log("Bomb found")
+                        //console.log("Bomb found")
                         setCellsMatrix(data.revealedCells)
                         setIsGameWin(false)
                         stopTimer()
                         setShowResultModal(true)
                     } else {
-                        console.log("No bomb found:", data.revealedCells)
+                        //console.log("No bomb found:", data.revealedCells)
                         setCellsMatrix((prevData) => [...prevData, ...data.revealedCells]);
                     }
                 } else {
@@ -227,7 +227,7 @@ const Solo = ({isAuthenticated, isAdmin}) => {
         })
 
         socketRef.current.on('right-click', (data) => {
-            console.log('Received right-click event:', data);
+            //console.log('Received right-click event:', data);
 
             // Update the number of bombs
             const bombs = document.getElementById('bombs');
@@ -238,7 +238,7 @@ const Solo = ({isAuthenticated, isAdmin}) => {
                     bombs.innerHTML = (parseInt(bombs.innerHTML) + 1).toString();
                 }
             } catch (e) {
-                console.log(e)
+                //console.log(e)
             }
 
             if (data.gameEnded) {
@@ -251,7 +251,7 @@ const Solo = ({isAuthenticated, isAdmin}) => {
                 //alert('Game ended');
                 setShowResultModal(true)
             } else {
-                console.log("Data", data)
+                //console.log("Data", data)
 
                 if (data.length > 0) {
                     setCellsMatrix((prevData) => {

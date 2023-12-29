@@ -38,7 +38,7 @@ module.exports = function configureSocket(server, sessionMiddleware, app) {
             }
 
             //console.log("res:", res);
-            console.log('left-click', row, col, "RoomId:", roomId);
+            //console.log('left-click', row, col, "RoomId:", roomId);
             socket.emit('left-click', res);
         })
 
@@ -56,7 +56,7 @@ module.exports = function configureSocket(server, sessionMiddleware, app) {
             }
 
             //console.log("res:", res);
-            console.log('right-click', row, col, "RoomId:", roomId);
+            //console.log('right-click', row, col, "RoomId:", roomId);
             socket.emit('right-click', res);
         })
 
@@ -67,7 +67,7 @@ module.exports = function configureSocket(server, sessionMiddleware, app) {
         socket.on('left-click-multi', (data) => {
             const {row, col, roomId, username} = data;
             const room = roomData.getMultiRoom(roomId);
-            console.log("Handle left click multi:", row, col, roomId, username)
+            //console.log("Handle left click multi:", row, col, roomId, username)
             const game = room.game;
             const res = game.handleMultiLeftClick(row, col, username);
 
@@ -94,7 +94,7 @@ module.exports = function configureSocket(server, sessionMiddleware, app) {
                 }
             } else {
                 //console.log("res:", res);
-                console.log('left-click-multi', row, col, "RoomId:", roomId);
+                //console.log('left-click-multi', row, col, "RoomId:", roomId);
                 //console.log("Res:", res)
                 socket.emit('left-click-multi', res);
             }
@@ -129,7 +129,7 @@ module.exports = function configureSocket(server, sessionMiddleware, app) {
                 }
             } else {
                 //console.log("res:", res);
-                console.log('right-click-multi', row, col, "RoomId:", roomId);
+                //console.log('right-click-multi', row, col, "RoomId:", roomId);
                 //console.log("Res:", res)
                 socket.emit('right-click-multi', res);
             }
