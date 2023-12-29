@@ -22,11 +22,11 @@ const server = http.createServer(app); // Use http.createServer to create a serv
 // *************************
 
 // Allow CORS
-if (process.env.NODE_ENV === 'development') {
+/*if (process.env.NODE_ENV === 'development') {
     app.use(cors({
         origin: 'http://localhost:8000',
         methods: 'GET,HEAD,POST',
-        credentials: true,
+        credentials: false,
     }));
 }
 else {
@@ -35,7 +35,7 @@ else {
         methods: 'GET,HEAD,POST',
         credentials: true,
     }));
-}
+}*/
 
 // Serve static files from the "public" directory
 app.use(express.static(path.join(__dirname, '/public')));

@@ -29,6 +29,7 @@ const Multi = ({isAuthenticated, isAdmin}) => {
     const cellSize = 40;
     const timerInterval = useRef(null);
     const canvasRef = useRef(null);
+    const clickTimeout = useRef(null);
     //console.log(roomName, ranked, players)
 
     // ================ FUNCTIONS ================
@@ -63,42 +64,110 @@ const Multi = ({isAuthenticated, isAdmin}) => {
         timerInterval.current = null;
     }
 
-    const handleCanvasLeftClick = useCallback((event) => {
-        if (timerInterval.current === null) {
-            startTimer();
-            //console.log("Start timer: ", timerInterval.current)
-        }
-        const { row, col } = getGridCoordinates(event.clientX, event.clientY, cellSize);
-        //console.log(`Left clicked multi on cell (${row}, ${col})`);
-
-        socketRef.current.emit('left-click-multi', { row, col, roomId: getCookies()['multiRoomId'], username: getCookies()['username'], roomName: roomName })
-
+    const handleTouchEnd = useCallback((event) => {
+        clearTimeout(clickTimeout.current);
     }, [])
+
+    const handleCanvasLeftClick = useCallback((event) => {
+        if (event.type === 'touchstart')
+            event.preventDefault();
+
+        if (timerInterval === null) {
+            startTimer();
+        }
+
+        let isTouchEvent = false;
+        let timeoutFinished = false;
+        let clientX, clientY;
+
+        // Check if it's a touch event
+        if (event.type === 'touchstart') {
+            // Use the first touch in case of multitouch
+            clientX = event.changedTouches[0].clientX;
+            clientY = event.changedTouches[0].clientY;
+            isTouchEvent = true;
+        } else {
+            // It's a click event
+            clientX = event.clientX;
+            clientY = event.clientY;
+        }
+
+        console.log(clientX, clientY)
+        const { row, col } = getGridCoordinates(clientX, clientY, cellSize);
+
+        if (isTouchEvent) {
+            clearTimeout(clickTimeout.current);
+            clickTimeout.current = setTimeout(() => {
+                timeoutFinished = true;
+                console.log(`Long press detected on cell (${row}, ${col})`);
+                // Perform the desired action for a long press (right-click)
+                socketRef.current.emit('right-click-multi', { row, col, roomId: getCookies()['multiRoomId'], username: getCookies()['username'], roomName: roomName })
+            }, 200);
+
+            // Wait for the timeout to finish
+            setTimeout(() => {
+                // Perform the desired action for a quick tap (left-click)
+                if (!timeoutFinished) {
+                    console.log(`Quick tap detected on cell (${row}, ${col})`);
+                    socketRef.current.emit('left-click-multi', { row, col, roomId: getCookies()['multiRoomId'], username: getCookies()['username'], roomName: roomName })
+                }
+            }, 200);
+        } else {
+            // Quick tap (left-click)
+            clearTimeout(clickTimeout.current);
+            console.log(`Left click on cell (${row}, ${col})`);
+            socketRef.current.emit('left-click-multi', { row, col, roomId: getCookies()['multiRoomId'], username: getCookies()['username'], roomName: roomName })
+        }
+    }, []);
 
     const handleCanvasRightClick = useCallback((event) => {
         event.preventDefault();
-
-        if (timerInterval.current === null) {
+        if (timerInterval === null) {
             startTimer();
-            //console.log("Start timer: ", timerInterval.current)
         }
-        const { row, col } = getGridCoordinates(event.clientX, event.clientY, cellSize);
-        //console.log(`Right clicked multi on cell (${row}, ${col})`);
 
+        let clientX, clientY;
+
+        // It's a click event
+        clientX = event.clientX;
+        clientY = event.clientY;
+
+        const { row, col } = getGridCoordinates(clientX, clientY, cellSize);
+        console.log(`Right clicked on cell (${row}, ${col})`);
         socketRef.current.emit('right-click-multi', { row, col, roomId: getCookies()['multiRoomId'], username: getCookies()['username'], roomName: roomName })
-
-    }, [])
+    }, []);
 
     const addClickListeners = () => {
-        //console.log("Add click listeners:", canvasRef.current)
-        canvasRef.current.addEventListener('click', handleCanvasLeftClick);
-        canvasRef.current.addEventListener('contextmenu', handleCanvasRightClick);
+        const isTouchDevice = 'maxTouchPoints' in navigator && navigator.maxTouchPoints > 0;
+        console.log("IsTouchDevice:", isTouchDevice)
+        const leftClickEvent = isTouchDevice ? 'touchstart' : 'click';
+        const rightClickEvent = isTouchDevice ? 'contextmenu' : 'contextmenu';
+
+        const canvas = document.getElementById('grid');
+        if (isTouchDevice) {
+            canvas.addEventListener('touchstart', handleCanvasLeftClick);
+            canvas.addEventListener('touchend', handleTouchEnd);
+        }
+        else {
+            canvas.addEventListener(leftClickEvent, handleCanvasLeftClick);
+            canvas.addEventListener('contextmenu', handleCanvasRightClick);
+        }
+
     };
 
     const removeClickListeners = () => {
-        //console.log("Remove click listeners:", canvasRef.current)
-        canvasRef.current.removeEventListener('click', handleCanvasLeftClick);
-        canvasRef.current.removeEventListener('contextmenu', handleCanvasRightClick);
+        const isTouchDevice = 'maxTouchPoints' in navigator && navigator.maxTouchPoints > 0;
+        const leftClickEvent = isTouchDevice ? 'touchstart' : 'click';
+        const rightClickEvent = isTouchDevice ? 'touchend' : 'contextmenu';
+
+        const canvas = document.getElementById('grid');
+        if (isTouchDevice) {
+            canvas.removeEventListener('touchstart', handleCanvasLeftClick);
+            canvas.removeEventListener('touchend', handleTouchEnd);
+        } else {
+            canvas.removeEventListener(leftClickEvent, handleCanvasLeftClick);
+            canvas.removeEventListener('contextmenu', handleCanvasRightClick);
+        }
     };
 
     // Initialize the game

@@ -15,6 +15,7 @@ const Solo = ({isAuthenticated, isAdmin}) => {
     const [showResultModal, setShowResultModal] = useState(false);
     const [isGameWin, setIsGameWin] = useState(false);
     const socketRef = useRef(null);
+    const clickTimeout = useRef(null);
     let timerInterval = null;
 
     const startTimer = () => {
@@ -30,28 +31,60 @@ const Solo = ({isAuthenticated, isAdmin}) => {
         clearInterval(timerInterval);
     }
 
+    const handleTouchEnd = useCallback((event) => {
+        clearTimeout(clickTimeout.current);
+    }, [])
+
     const handleCanvasLeftClick = useCallback((event) => {
+        if (event.type === 'touchstart')
+            event.preventDefault();
+
         if (timerInterval === null) {
             startTimer();
         }
 
+        let isTouchEvent = false;
+        let timeoutFinished = false;
         let clientX, clientY;
 
         // Check if it's a touch event
-        if (event.touches && event.touches.length > 0) {
+        if (event.type === 'touchstart') {
             // Use the first touch in case of multitouch
-            clientX = event.touches[0].clientX;
-            clientY = event.touches[0].clientY;
+            clientX = event.changedTouches[0].clientX;
+            clientY = event.changedTouches[0].clientY;
+            isTouchEvent = true;
         } else {
             // It's a click event
             clientX = event.clientX;
             clientY = event.clientY;
         }
 
+        console.log(clientX, clientY)
         const { row, col } = getGridCoordinates(clientX, clientY, cellSize);
-        //console.log(`Left clicked on cell (${row}, ${col})`);
 
-        socketRef.current.emit('left-click', { row, col, roomId: getCookies()['roomId'] })
+        if (isTouchEvent) {
+            clearTimeout(clickTimeout.current);
+            clickTimeout.current = setTimeout(() => {
+                timeoutFinished = true;
+                console.log(`Long press detected on cell (${row}, ${col})`);
+                // Perform the desired action for a long press (right-click)
+                socketRef.current.emit('right-click', { row, col, roomId: getCookies()['roomId'] });
+            }, 200);
+
+            // Wait for the timeout to finish
+            setTimeout(() => {
+                // Perform the desired action for a quick tap (left-click)
+                if (!timeoutFinished) {
+                    console.log(`Quick tap detected on cell (${row}, ${col})`);
+                    socketRef.current.emit('left-click', { row, col, roomId: getCookies()['roomId'] });
+                }
+            }, 200);
+        } else {
+            // Quick tap (left-click)
+            clearTimeout(clickTimeout.current);
+            console.log(`Left click on cell (${row}, ${col})`);
+            socketRef.current.emit('left-click', { row, col, roomId: getCookies()['roomId'] });
+        }
     }, []);
 
     const handleCanvasRightClick = useCallback((event) => {
@@ -62,32 +95,31 @@ const Solo = ({isAuthenticated, isAdmin}) => {
 
         let clientX, clientY;
 
-        // Check if it's a touch event
-        if (event.touches && event.touches.length > 0) {
-            // Use the first touch in case of multitouch
-            clientX = event.touches[0].clientX;
-            clientY = event.touches[0].clientY;
-        } else {
-            // It's a click event
-            clientX = event.clientX;
-            clientY = event.clientY;
-        }
+        // It's a click event
+        clientX = event.clientX;
+        clientY = event.clientY;
 
         const { row, col } = getGridCoordinates(clientX, clientY, cellSize);
-        //console.log(`Right clicked on cell (${row}, ${col})`);
-
-        socketRef.current.emit('right-click', { row, col, roomId: getCookies()['roomId'] })
+        console.log(`Right clicked on cell (${row}, ${col})`);
+        socketRef.current.emit('right-click', {row, col, roomId: getCookies()['roomId']})
     }, []);
 
     const addClickListeners = () => {
         const isTouchDevice = 'maxTouchPoints' in navigator && navigator.maxTouchPoints > 0;
         console.log("IsTouchDevice:", isTouchDevice)
         const leftClickEvent = isTouchDevice ? 'touchstart' : 'click';
-        const rightClickEvent = isTouchDevice ? 'touchend' : 'contextmenu';
+        const rightClickEvent = isTouchDevice ? 'contextmenu' : 'contextmenu';
 
         const canvas = document.getElementById('grid');
-        canvas.addEventListener(leftClickEvent, handleCanvasLeftClick);
-        canvas.addEventListener(rightClickEvent, handleCanvasRightClick);
+        if (isTouchDevice) {
+            canvas.addEventListener('touchstart', handleCanvasLeftClick);
+            canvas.addEventListener('touchend', handleTouchEnd);
+        }
+        else {
+            canvas.addEventListener(leftClickEvent, handleCanvasLeftClick);
+            canvas.addEventListener('contextmenu', handleCanvasRightClick);
+        }
+
     };
 
     const removeClickListeners = () => {
@@ -96,8 +128,13 @@ const Solo = ({isAuthenticated, isAdmin}) => {
         const rightClickEvent = isTouchDevice ? 'touchend' : 'contextmenu';
 
         const canvas = document.getElementById('grid');
-        canvas.removeEventListener(leftClickEvent, handleCanvasLeftClick);
-        canvas.removeEventListener(rightClickEvent, handleCanvasRightClick);
+        if (isTouchDevice) {
+            canvas.removeEventListener('touchstart', handleCanvasLeftClick);
+            canvas.removeEventListener('touchend', handleTouchEnd);
+        } else {
+            canvas.removeEventListener(leftClickEvent, handleCanvasLeftClick);
+            canvas.removeEventListener('contextmenu', handleCanvasRightClick);
+        }
     };
 
     const leaveRoom = () => {

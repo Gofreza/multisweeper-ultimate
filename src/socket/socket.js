@@ -17,6 +17,11 @@ module.exports = function configureSocket(server, sessionMiddleware, app) {
     io.on('connection', (socket) => {
         console.log('New socket connection', socket.id);
 
+        // Handle connection errors
+        socket.on('error', (error) => {
+            console.error('Socket connection error:', error);
+        });
+
         //TODO Refactor the two left and right click functions
 
         // =========== SOLO ===========
@@ -179,6 +184,11 @@ module.exports = function configureSocket(server, sessionMiddleware, app) {
             roomData.restartMultiRoom(roomId, rows, cols);
             io.to(data.roomName).emit('restart-multi-game', {cols:data.cols, rows:data.rows})
         })
+    });
+
+    // Handle server-level socket errors
+    io.on('error', (error) => {
+        console.error('Server socket error:', error);
     });
 
 };
