@@ -34,7 +34,21 @@ const Solo = ({isAuthenticated, isAdmin}) => {
         if (timerInterval === null) {
             startTimer();
         }
-        const { row, col } = getGridCoordinates(event.clientX, event.clientY, cellSize);
+
+        let clientX, clientY;
+
+        // Check if it's a touch event
+        if (event.touches && event.touches.length > 0) {
+            // Use the first touch in case of multitouch
+            clientX = event.touches[0].clientX;
+            clientY = event.touches[0].clientY;
+        } else {
+            // It's a click event
+            clientX = event.clientX;
+            clientY = event.clientY;
+        }
+
+        const { row, col } = getGridCoordinates(clientX, clientY, cellSize);
         //console.log(`Left clicked on cell (${row}, ${col})`);
 
         socketRef.current.emit('left-click', { row, col, roomId: getCookies()['roomId'] })
@@ -45,7 +59,21 @@ const Solo = ({isAuthenticated, isAdmin}) => {
         if (timerInterval === null) {
             startTimer();
         }
-        const { row, col } = getGridCoordinates(event.clientX, event.clientY, cellSize);
+
+        let clientX, clientY;
+
+        // Check if it's a touch event
+        if (event.touches && event.touches.length > 0) {
+            // Use the first touch in case of multitouch
+            clientX = event.touches[0].clientX;
+            clientY = event.touches[0].clientY;
+        } else {
+            // It's a click event
+            clientX = event.clientX;
+            clientY = event.clientY;
+        }
+
+        const { row, col } = getGridCoordinates(clientX, clientY, cellSize);
         //console.log(`Right clicked on cell (${row}, ${col})`);
 
         socketRef.current.emit('right-click', { row, col, roomId: getCookies()['roomId'] })
@@ -53,6 +81,7 @@ const Solo = ({isAuthenticated, isAdmin}) => {
 
     const addClickListeners = () => {
         const isTouchDevice = 'maxTouchPoints' in navigator && navigator.maxTouchPoints > 0;
+        console.log("IsTouchDevice:", isTouchDevice)
         const leftClickEvent = isTouchDevice ? 'touchstart' : 'click';
         const rightClickEvent = isTouchDevice ? 'touchend' : 'contextmenu';
 

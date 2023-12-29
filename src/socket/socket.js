@@ -26,7 +26,7 @@ module.exports = function configureSocket(server, sessionMiddleware, app) {
         socket.on('left-click', (data) => {
             const {row, col, roomId} = data;
             const room = roomData.getSoloRoom(roomId);
-            //console.log("room:", room)
+            console.log("room:", room)
             const game = room.game;
             const res = game.handleLeftClick(row, col);
 
