@@ -2,6 +2,7 @@ const express = require('express');
 const path = require('path');
 const session = require('express-session');
 const flash = require('connect-flash')
+const cors = require("cors");
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
 
@@ -19,6 +20,13 @@ const server = http.createServer(app); // Use http.createServer to create a serv
 // *************************
 // *** Middleware config ***
 // *************************
+
+//
+app.use(cors({
+    origin: 'https://www.multisweeper.fr/',
+    methods: 'GET,HEAD,POST',
+    credentials: true,
+}));
 
 // Serve static files from the "public" directory
 app.use(express.static(path.join(__dirname, '/public')));
