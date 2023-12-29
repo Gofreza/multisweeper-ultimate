@@ -1,5 +1,5 @@
 import SideMenu from "../menu/sideMenu";
-import {useEffect, useRef, useState} from "react";
+import {useCallback, useEffect, useRef, useState} from "react";
 import {useLocation} from "react-router-dom";
 import io from "socket.io-client";
 import styles from "/public/css/game.module.css"
@@ -30,7 +30,7 @@ const Solo = ({isAuthenticated, isAdmin}) => {
         clearInterval(timerInterval);
     }
 
-    const handleCanvasLeftClick = (event) => {
+    const handleCanvasLeftClick = useCallback((event) => {
         if (timerInterval === null) {
             startTimer();
         }
@@ -38,9 +38,9 @@ const Solo = ({isAuthenticated, isAdmin}) => {
         //console.log(`Left clicked on cell (${row}, ${col})`);
 
         socketRef.current.emit('left-click', { row, col, roomId: getCookies()['roomId'] })
-    }
+    }, []);
 
-    const handleCanvasRightClick = (event) => {
+    const handleCanvasRightClick = useCallback((event) => {
         event.preventDefault();
         if (timerInterval === null) {
             startTimer();
@@ -49,10 +49,10 @@ const Solo = ({isAuthenticated, isAdmin}) => {
         //console.log(`Right clicked on cell (${row}, ${col})`);
 
         socketRef.current.emit('right-click', { row, col, roomId: getCookies()['roomId'] })
-    }
+    }, []);
 
     const addClickListeners = () => {
-        const isTouchDevice = 'ontouchstart' in document.documentElement;
+        const isTouchDevice = 'maxTouchPoints' in navigator && navigator.maxTouchPoints > 0;
         const leftClickEvent = isTouchDevice ? 'touchstart' : 'click';
         const rightClickEvent = isTouchDevice ? 'touchend' : 'contextmenu';
 
@@ -62,9 +62,13 @@ const Solo = ({isAuthenticated, isAdmin}) => {
     };
 
     const removeClickListeners = () => {
+        const isTouchDevice = 'maxTouchPoints' in navigator && navigator.maxTouchPoints > 0;
+        const leftClickEvent = isTouchDevice ? 'touchstart' : 'click';
+        const rightClickEvent = isTouchDevice ? 'touchend' : 'contextmenu';
+
         const canvas = document.getElementById('grid');
-        canvas.removeEventListener('click', handleCanvasLeftClick);
-        canvas.removeEventListener('contextmenu', handleCanvasRightClick);
+        canvas.removeEventListener(leftClickEvent, handleCanvasLeftClick);
+        canvas.removeEventListener(rightClickEvent, handleCanvasRightClick);
     };
 
     const leaveRoom = () => {
