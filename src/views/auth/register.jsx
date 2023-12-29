@@ -1,9 +1,9 @@
 import * as React from "react";
-import {Link, useNavigate} from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import styles from "/public/css/login.module.css";
 import SideMenu from "../menu/sideMenu";
 
-const Login = ({ isAuthenticated }) => {
+const Register = ({ isAuthenticated }) => {
     const navigate = useNavigate();
 
     // Redirect if isAuthenticated is true
@@ -18,18 +18,16 @@ const Login = ({ isAuthenticated }) => {
             <SideMenu isAuthenticated={isAuthenticated} />
             <section className="home">
                 <div className="text">
-                    Login
+                    Register
                 </div>
                 <div className={styles.loginForm}>
-                    <h1>Login</h1>
-                    <form action="/login" method="POST">
+                    <h1>Register</h1>
+                    <form action="/register" method="POST">
                         <input type="text" name="username" placeholder="Username" autoFocus/>
                         <input type="password" name="password" placeholder="Password" />
-                        <input type="submit" value="Login" />
+                        <input type="password" name="confirmPassword" placeholder="Confirm Password" />
+                        <input type="submit" value="Register" />
                     </form>
-                    <div>
-                        <p>Don't have an account? <Link to="/register">Register</Link></p>
-                    </div>
                 </div>
             </section>
 
@@ -37,4 +35,4 @@ const Login = ({ isAuthenticated }) => {
     );
 };
 
-export default Login;
+export default Register;

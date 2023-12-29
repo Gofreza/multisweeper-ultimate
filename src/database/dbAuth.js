@@ -87,14 +87,14 @@ async function insertUserPG(pgClient, username, password) {
             },
             {
                 name: 'insert-stats-solo-pg',
-                text: `INSERT INTO stats (username, gameMode, numGamesPlayed, numGamesWon, numGamesLost, numBombsDefused, numBombsExploded, numFlagsPlaced, numCellsRevealed, averageTime, fastestTime, longestTime)
-                       VALUES ($1, 'solo', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)`,
+                text: `INSERT INTO stats ("user", gameMode, numGamesPlayed, numGamesWon, numGamesLost, numBombsDefused, numBombsExploded, numFlagsPlaced, numCellsRevealed, averageTime, fastestTime, longestTime)
+                       VALUES ((SELECT id FROM users WHERE username = $1), 'solo', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)`,
                 values: [username]
             },
             {
                 name: 'insert-stats-multi-pg',
-                text: `INSERT INTO stats (username, gameMode, numGamesPlayed, numGamesWon, numGamesLost, numBombsDefused, numBombsExploded, numFlagsPlaced, numCellsRevealed, averageTime, fastestTime, longestTime)
-                       VALUES ($1, 'multi', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)`,
+                text: `INSERT INTO stats ("user", gameMode, numGamesPlayed, numGamesWon, numGamesLost, numBombsDefused, numBombsExploded, numFlagsPlaced, numCellsRevealed, averageTime, fastestTime, longestTime)
+                       VALUES ((SELECT id FROM users WHERE username = $1), 'multi', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)`,
                 values: [username]
             }
         ];
@@ -114,13 +114,27 @@ async function insertUserPG(pgClient, username, password) {
  */
 async function deleteUserPG(pgClient, username) {
     try {
-        const query = {
-            name: 'delete-user-pg',
-            text: `DELETE FROM users WHERE username = $1`,
-            values: [username]
-        }
+        const queries = [
+            {
+                name: 'delete-solo-stats-pg',
+                text: `DELETE FROM stats WHERE "user" = (SELECT id FROM users WHERE username = $1) AND gameMode = 'solo'`,
+                values: [username]
+            },
+            {
+                name: 'delete-multi-stats-pg',
+                text: `DELETE FROM stats WHERE "user" = (SELECT id FROM users WHERE username = $1) AND gameMode = 'multi'`,
+                values: [username]
+            },
+            {
+                name: 'delete-user-pg',
+                text: `DELETE FROM users WHERE username = $1`,
+                values: [username]
+            }
+        ]
 
-        await pgClient.query(query);
+        for (const query of queries) {
+            await pgClient.query(query);
+        }
     } catch (error) {
         console.error("Error deleteUserPG:", error.message);
     }

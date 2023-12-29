@@ -14,10 +14,12 @@ import ChangePassword from "../auth/changePassword";
 import Leaderboard from "../page/leaderboard";
 import Solo from "../game/solo";
 import Multi from "../game/multi";
+import Register from "../auth/register";
 
 const HomeAuth = withAuthentication(Home);
 const ProfileAuth = withAuthentication(Profile);
 const LoginNotAuth = withNotAuthentication(LoginComponent);
+const RegisterNotAuth = withNotAuthentication(Register);
 const ChangePasswordAuth = withAuthentication(ChangePassword);
 const LeaderboardAuth = withAuthentication(Leaderboard);
 const SoloAuth = withAuthentication(Solo);
@@ -34,6 +36,10 @@ const init = async () => {
             {
                 path: "/login",
                 element: <LoginNotAuth/>,
+            },
+            {
+                path: "/register",
+                element: <RegisterNotAuth/>,
             },
             {
                 path: "/profile",

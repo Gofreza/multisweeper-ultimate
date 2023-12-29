@@ -254,10 +254,22 @@ router.post('/api/join-multi-room', (req, res) => {
         const room = roomData.getMultiRoom(roomIdJoined);
         console.log("Room:", room)
 
+        if (room.started) {
+            return res.status(400).send({ message: 'Game already started' });
+        }
+
         if (room.finished) {
-            //@TODO: Return the results
             const results = room.game.getMultiResults();
-            res.status(200).send({ roomId: roomIdJoined, roomName: room.name, players: room.players, ranked: room.ranked, results: results });
+            if (req.cookies.multiRoomId) {
+                // Already in a room
+                res.status(200).send({ roomId: roomIdJoined, roomName: room.name, players: room.players, ranked: room.ranked, results: results });
+            } else {
+                // Just join the room
+                // Do +1 to the number of players
+                room.numPlayers++;
+                res.cookie('multiRoomId', roomIdJoined, {httpOnly: false})
+                res.status(200).send({ roomId: roomIdJoined, roomName: room.name, players: room.players, ranked: room.ranked, results: results });
+            }
         } else if (room.started) {
             const game = room.game;
             const grid = game.getMultiGrid(username);
@@ -265,8 +277,7 @@ router.post('/api/join-multi-room', (req, res) => {
             const timeElapsed = grid.timeElapsed;
             const numBombs = grid.currentGrid.numBombs;
 
-            // TODO Maybe do something for the exploded bombs
-            // TODO They are transformed into flag for now
+            // TODO Maybe do something for the exploded bombs, they are transformed into flag for now
             // Set all the non-visible cells to -1
             // Tell the client only where are the cells that he discovered
             for (let i = 0; i < currentGrid.length; i++) {
@@ -283,7 +294,7 @@ router.post('/api/join-multi-room', (req, res) => {
             // Check if the user is already in the room
             if (req.cookies.multiRoomId) {
                 // Already in a room
-                console.log("Join Room:", room.name)
+                console.log(username + "Join Room:" + room.name)
                 console.log("Already in a room (api):", req.cookies.multiRoomId)
                 res.status(200).send({ roomId: roomIdJoined, roomName: room.name, ranked: room.ranked, players: room.players });
             } else {

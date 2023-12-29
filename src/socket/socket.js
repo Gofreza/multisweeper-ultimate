@@ -2,7 +2,8 @@
 const { Server } = require("socket.io");
 const sharedSession = require('express-socket.io-session');
 const {getInstance} = require("../core/roomData");
-const roomData = getInstance();
+const {calculateRankedPoints} = require("../miscFunctions/rankedCalculs");
+const {getPlayersArrayFromGameResults} = require("../miscFunctions/rankedCalculs");
 
 // Export a function that takes the server instance and session middleware
 module.exports = function configureSocket(server, sessionMiddleware, app) {
@@ -73,12 +74,19 @@ module.exports = function configureSocket(server, sessionMiddleware, app) {
             if (res.gameEnded) {
                 console.log("Game ended:", res.gameEnded, "RoomId:", roomId);
                 const room = roomData.getMultiRoom(roomId);
-                console.log("Room:", room)
+                //console.log("Room:", room)
                 console.log("Check if all multi games ended:", game.checkIfAllMultiGamesEnded(room.numPlayers), room.numPlayers)
                 if (game.checkIfAllMultiGamesEnded(room.numPlayers)) {
                     room.finished = true;
                     room.winner = username;
+                    room.started = false;
                     const results = game.getMultiResults();
+
+                    if (room.ranked) {
+                        console.log("Ranked game, calculating points")
+                        const rankedPoints = calculateRankedPoints(results);
+                    }
+
                     io.to(data.roomName).emit('multi-game-ended', results);
                 }
                 else {
@@ -101,12 +109,19 @@ module.exports = function configureSocket(server, sessionMiddleware, app) {
             if (res.gameEnded) {
                 console.log("Game ended:", res.gameEnded, "RoomId:", roomId);
                 const room = roomData.getMultiRoom(roomId);
-                console.log("Room:", room)
+                //console.log("Room:", room)
                 console.log("Check if all multi games ended:", game.checkIfAllMultiGamesEnded(room.numPlayers), room.numPlayers)
                 if (game.checkIfAllMultiGamesEnded(room.numPlayers)) {
                     room.finished = true;
                     room.winner = username;
+                    room.started = false;
                     const results = game.getMultiResults();
+
+                    if (room.ranked) {
+                        console.log("Ranked game, calculating points")
+                        const rankedPoints = calculateRankedPoints(results);
+                    }
+
                     io.to(data.roomName).emit('multi-game-ended', results);
                 }
                 else {

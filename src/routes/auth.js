@@ -1,7 +1,9 @@
 const express = require('express');
 const {getClient} = require("../database/dbSetup");
-const {getHashUserPG, addConnectionPG, isAdminPG, deleteConnectionPG, isConnectedPG, getUserRole} = require("../database/dbAuth");
-const {compare} = require("bcrypt");
+const {getHashUserPG, addConnectionPG, isAdminPG, deleteConnectionPG, isConnectedPG, getUserRole, usernameExistsPG,
+    insertUserPG
+} = require("../database/dbAuth");
+const {compare, hash} = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const {verifyConnection, isNotConnected} = require("../miscFunctions/functions");
 const router = express.Router();
@@ -56,6 +58,37 @@ router.post('/login', async (req, res) => {
     }
 
 });
+
+router.post('/register', async (req, res) => {
+    let {username, password, confirmPassword} = req.body;
+
+    try {
+        const pgClient = getClient()
+
+        if (username.length > 20)
+            username = username.substring(0, 20);
+
+        if (await usernameExistsPG(pgClient, username)) {
+            // Username already exists
+            return res.redirect('/login');
+        }
+
+        if (password !== confirmPassword) {
+            // Passwords do not match
+            return res.redirect('/register');
+        }
+
+        const hashedPassword = await hash(password, 10);
+        await insertUserPG(pgClient, username, hashedPassword);
+        return res.redirect('/login');
+
+    } catch (hashError) {
+        console.error('Error occurred while getting hashed password:', hashError);
+        res.status(500).send('Internal Server Error');
+    }
+
+
+})
 
 router.get('/logout', verifyConnection, async (req, res) => {
     try {

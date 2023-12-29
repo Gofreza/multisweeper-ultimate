@@ -116,6 +116,9 @@ const Multi = ({isAuthenticated, isAdmin}) => {
         socketRef.current.on('receive-user-data', (data) => {
             const players = data.players;
             console.log("Receive user data:", players);
+            if (players.length === 0)
+                // Force a reload of the page
+                window.location.reload();
             setPlayers(players);
         })
 
@@ -287,8 +290,7 @@ const Multi = ({isAuthenticated, isAdmin}) => {
                         setCellsMatrix((prevData) => [...prevData, ...flattenedRes]);
 
                         setIsGameStarted(true);
-                    }
-                    else if (data.results){
+                    } else if (data.results){
                         console.log("Results:", data.results)
                         setIsGameEnded(true);
                         setShowResultModal(true)

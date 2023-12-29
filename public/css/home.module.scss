@@ -81,6 +81,11 @@
         min-width: 50%;
         padding: 16px;
 
+        .error {
+            color: red;
+            font-size: 16px;
+        }
+
         .syncRooms {
             font-size: 20px;
         }

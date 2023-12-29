@@ -35,12 +35,28 @@ const Home = ({isAuthenticated, isAdmin}) => {
                 roomId: roomId
             })
         })
-            .then(response => response.json())
+            .then(response => {
+                event.preventDefault();
+
+                if (!response.ok) {
+                    throw new Error('Game has already started !');
+                }
+                return response.json()
+            })
             .then(data => {
                 console.log("Join multi room:", data);
                 //document.cookie = "multiRoomId=" + roomId + "; path=/;";
                 navigate('/game/multi', { state: { roomName: data.roomName, ranked: data.ranked, players: data.players } });
-            });
+            })
+            .catch(error => {
+                const joinRoomErrorMessage = document.getElementById("joinRoomError")
+                joinRoomErrorMessage.innerText = error.message;
+                setTimeout(() => {
+                    joinRoomErrorMessage.innerText = "";
+                }, 3000);
+                //console.error("Error:", error);
+            }
+        );
 
     }
 
@@ -161,6 +177,8 @@ const Home = ({isAuthenticated, isAdmin}) => {
             {isAuthenticated && (
                 <div className={styles.roomsContainer}>
                     <div className={styles.roomsList}>
+                        <span id="joinRoomError" className={styles.error}>
+                        </span>
                         <table>
                             <thead>
                             <tr>

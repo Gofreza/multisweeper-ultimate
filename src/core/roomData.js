@@ -102,6 +102,12 @@ class RoomData {
     }
 
     joinMultiRoom(roomId, playerName) {
+
+        if (this.multiRooms[roomId].started) {
+            console.log("Game already started in room " + roomId);
+            return roomId;
+        }
+
         if (!this.multiRooms[roomId].players.includes(playerName)) {
             this.multiRooms[roomId].players.push(playerName);
         }
