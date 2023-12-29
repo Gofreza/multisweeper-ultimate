@@ -111,7 +111,7 @@ const Multi = ({isAuthenticated, isAdmin}) => {
         // ================ SOCKET.IO ================
 
         // Connect to the WebSocket server
-        socketRef.current = io('http://127.0.0.1:8000');
+        socketRef.current = io('https://www.multisweeper.fr/');
 
         socketRef.current.on('receive-user-data', (data) => {
             const players = data.players;
