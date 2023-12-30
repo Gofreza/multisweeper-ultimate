@@ -111,6 +111,8 @@ const redrawGrid = (cellsMatrix, row, col, cellSize) => {
     ctx.strokeStyle = "#000000"; // Set stroke color to black
     ctx.lineWidth = 1;
 
+    ctx.clearRect(0, 0, col * cellSize, row * cellSize);
+
     for (let r = 0; r < row; r++) {
         for (let c = 0; c < col; c++) {
             const x = c * cellSize;
@@ -120,7 +122,6 @@ const redrawGrid = (cellsMatrix, row, col, cellSize) => {
             ctx.strokeRect(x, y, cellSize, cellSize);
 
             const cell = cellsMatrix.find(item => item.row === r && item.col === c);
-
             if (cell) {
                 if (cell.flagged) {
                     // Set the background color
@@ -159,7 +160,6 @@ const redrawGrid = (cellsMatrix, row, col, cellSize) => {
 
                     ctx.closePath();
                     ctx.fill();
-
 
                     //ctx.fillRect(col * cellSize + cellSize / 4, row * cellSize + cellSize / 4, cellSize / 2, cellSize / 2); // Draw a flag
                 } else {

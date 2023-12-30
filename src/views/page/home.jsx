@@ -201,6 +201,31 @@ const Home = ({isAuthenticated, isAdmin}) => {
                     </div>
                 </div>
             )}
+            <div className={styles.homeContainer}>
+                <div className={styles.soloContainer}>
+                    <h1>Multiplayer</h1>
+                    <p>To play in multiplayer please log in.</p>
+                    <h1>Known Bugs</h1>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Bug</th>
+                                <th>Fix</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Phantom Flag: When you place and remove a flag, if you place a flag after the previous one the old one will reappear but don't count as a flag.</td>
+                                <td>Fixed: No. Refresh the page to make the phantom flags disappear.</td>
+                            </tr>
+                            <tr>
+                                <td>The stats are not updated after a game.</td>
+                                <td>Fixed: No I'm lazy.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
         </section>
     </>
   )

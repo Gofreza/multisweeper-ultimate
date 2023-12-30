@@ -178,7 +178,7 @@ const Solo = ({isAuthenticated, isAdmin}) => {
 
     useEffect(() => {
         // This code will run after setCellsMatrix has completed and the component has re-rendered
-        //console.log('Cells matrix updated:', cellsMatrix);
+        console.log('Cells matrix updated:', cellsMatrix);
         redrawGrid(cellsMatrix, row, col, cellSize);
     }, [cellsMatrix]);
 
@@ -249,7 +249,6 @@ const Solo = ({isAuthenticated, isAdmin}) => {
                     drawGrid(row, col, cellSize);
                     const bombs = document.getElementById('bombs');
                     bombs.innerHTML = (Math.ceil(row * col * DIFFICULTY_NORMAL)).toString();
-                    // Create the 'roomId' cookie
                 })
                 .catch(error => {
                     //console.error('Error creating room:', error);
@@ -269,7 +268,6 @@ const Solo = ({isAuthenticated, isAdmin}) => {
 
         socketRef.current.on('left-click', (data) => {
             //console.log('Received left-click event:', data);
-
             if (data.gameEnded) {
                 if (data.isGameWin) {
                     setIsGameWin(true)
@@ -303,7 +301,7 @@ const Solo = ({isAuthenticated, isAdmin}) => {
         })
 
         socketRef.current.on('right-click', (data) => {
-            //console.log('Received right-click event:', data);
+            console.log('Received right-click event:', data);
 
             // Update the number of bombs
             const bombs = document.getElementById('bombs');
@@ -327,8 +325,6 @@ const Solo = ({isAuthenticated, isAdmin}) => {
                 //alert('Game ended');
                 setShowResultModal(true)
             } else {
-                //console.log("Data", data)
-
                 if (data.length > 0) {
                     setCellsMatrix((prevData) => {
                         //console.log("CellsMatrix", prevData)
@@ -339,6 +335,7 @@ const Solo = ({isAuthenticated, isAdmin}) => {
                             //console.log("Cell found")
                             return prevData.filter(item => !(item.row === data[0].row && item.col === data[0].col));
                         } else {
+                            //console.log("Cell not found")
                             return [...prevData, ...data];
                         }
                     })
