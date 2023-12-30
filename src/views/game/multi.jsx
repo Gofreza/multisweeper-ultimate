@@ -27,7 +27,6 @@ const Multi = ({isAuthenticated, isAdmin}) => {
     const [timeElapsedJoin, setTimeElapsedJoin] = useState(0);
     const [isGameStarted, setIsGameStarted] = useState(false);
     const cellSize = 40;
-    let time = 0;
     const timerInterval = useRef(null);
     const canvasRef = useRef(null);
     const clickTimeout = useRef(null);
@@ -45,19 +44,36 @@ const Multi = ({isAuthenticated, isAdmin}) => {
         setCols(event.target.value);
     }
 
-    const startTimer = (base = 0) => {
+    // ================ TIMER ================
+    //              Timer functions
+    // ================ TIMER ================
+
+    const startTimer = (base = 0, additionalTime = 0) => {
         const timer = document.getElementById('timer');
-        time = base;
-        if (base > 0)
+        let time = base;
+
+        if (additionalTime > 0) {
+            // Add additional time to the current time
+            time += additionalTime;
+        }
+
+        if (base > 0) {
             timer.innerHTML = time.toString();
+        }
 
         if (timerInterval.current === null) {
             timerInterval.current = setInterval(() => {
                 time++;
                 timer.innerHTML = time.toString();
-            }, 1000)
-            //console.log("Start timer: ", timerInterval.current);
+            }, 1000);
         }
+    };
+
+    const updateTimer = (time) => {
+        const timer = document.getElementById('timer');
+        const currentTime = parseInt(timer.innerHTML);
+        stopTimer();
+        startTimer(currentTime, time);
     }
 
     const stopTimer = () => {
@@ -257,7 +273,7 @@ const Multi = ({isAuthenticated, isAdmin}) => {
                         data.revealedCells.forEach(_ => {
                             bombs.innerHTML = (bombs.innerHTML - 1).toString();
                         })
-                        time += 5;
+                        updateTimer(5)
                     } else {
                         //console.log("No bomb found:", data.revealedCells)
                         setCellsMatrix((prevData) => [...prevData, ...data.revealedCells]);
@@ -267,7 +283,7 @@ const Multi = ({isAuthenticated, isAdmin}) => {
                         //console.log("Bomb found:", data.revealedCells)
                         setCellsMatrix((prevData) => [...prevData, ...data.revealedCells]);
                         bombs.innerHTML = (bombs.innerHTML - 1).toString();
-                        time += 5;
+                        updateTimer(5)
                     } else {
                         setCellsMatrix((prevData) => [...prevData, ...data]);
                     }

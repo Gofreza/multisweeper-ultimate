@@ -6,7 +6,7 @@
   "main": "dist/index.js",
   "scripts": {
     "start": "NODE_ENV=production node server.js",
-    "start-web": "parcel ./src/views/index/index.jsx",
+    "start-web": "npm run clean && parcel ./src/views/index/index.jsx",
     "clean": "rm -rf build && rm -rf dist && rm -rf .parcel-cache",
     "build": "NODE_ENV=production npm run clean && parcel build --target frontend"
   },
