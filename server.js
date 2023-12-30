@@ -21,6 +21,19 @@ const server = http.createServer(app); // Use http.createServer to create a serv
 // *** Middleware config ***
 // *************************
 
+// Redirect middleware
+app.use((req, res, next) => {
+    const host = req.get('host');
+    const isMultisweeperFr = host === 'multisweeper.fr';
+
+    if (isMultisweeperFr) {
+        const wwwUrl = `https://www.${host}${req.originalUrl}`;
+        return res.redirect(301, wwwUrl);
+    }
+
+    next();
+});
+
 // Allow CORS
 /*if (process.env.NODE_ENV === 'development') {
     app.use(cors({
