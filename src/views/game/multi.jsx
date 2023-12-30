@@ -27,6 +27,7 @@ const Multi = ({isAuthenticated, isAdmin}) => {
     const [timeElapsedJoin, setTimeElapsedJoin] = useState(0);
     const [isGameStarted, setIsGameStarted] = useState(false);
     const cellSize = 40;
+    let time = 0;
     const timerInterval = useRef(null);
     const canvasRef = useRef(null);
     const clickTimeout = useRef(null);
@@ -46,7 +47,7 @@ const Multi = ({isAuthenticated, isAdmin}) => {
 
     const startTimer = (base = 0) => {
         const timer = document.getElementById('timer');
-        let time = base;
+        time = base;
         if (base > 0)
             timer.innerHTML = time.toString();
 
@@ -256,6 +257,7 @@ const Multi = ({isAuthenticated, isAdmin}) => {
                         data.revealedCells.forEach(_ => {
                             bombs.innerHTML = (bombs.innerHTML - 1).toString();
                         })
+                        time += 5;
                     } else {
                         //console.log("No bomb found:", data.revealedCells)
                         setCellsMatrix((prevData) => [...prevData, ...data.revealedCells]);
@@ -265,6 +267,7 @@ const Multi = ({isAuthenticated, isAdmin}) => {
                         //console.log("Bomb found:", data.revealedCells)
                         setCellsMatrix((prevData) => [...prevData, ...data.revealedCells]);
                         bombs.innerHTML = (bombs.innerHTML - 1).toString();
+                        time += 5;
                     } else {
                         setCellsMatrix((prevData) => [...prevData, ...data]);
                     }

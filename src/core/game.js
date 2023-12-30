@@ -347,6 +347,8 @@ class Game {
                 if (this.multiplayer) {
                     mainGrid.setExploded(row, col);
                     this.numBombsExploded++;
+                    // Add malus for exploded bomb
+                    this.multiGrids[userGridIndex].timeElapsed += 5
                     userGrid.numbombs = userGrid.numbombs - 1;
                     const res = mainGrid.revealCell(row, col, false);
                     mainGrid.toggleFlag(row, col);
