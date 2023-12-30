@@ -90,12 +90,19 @@ module.exports = function configureSocket(server, sessionMiddleware, app) {
                     if (room.ranked && room.numPlayers > 1) {
                         console.log("Ranked game, calculating points")
                         calculateRankedPoints(results)
-                            .then(() => {
-                                console.log("Ranked points calculated")
+                            .then((playersPoints) => {
+                                console.log("Ranked points calculated:", playersPoints)
+                                results.map((result) => {
+                                    // For each result add the corresponding points
+                                    const playerPoints = playersPoints.find((playerPoints) => playerPoints.username === result.username);
+                                    result.points = playerPoints.points;
+                                })
+                                io.to(data.roomName).emit('multi-game-ended', results);
                             })
                     }
-
-                    io.to(data.roomName).emit('multi-game-ended', results);
+                    else {
+                        io.to(data.roomName).emit('multi-game-ended', results);
+                    }
                 }
                 else {
                     socket.emit('multi-game-waiting', res);

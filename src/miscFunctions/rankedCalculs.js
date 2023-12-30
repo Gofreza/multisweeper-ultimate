@@ -30,6 +30,8 @@ const calculateRankedPoints = async (results) => {
     }
 
     // Calculate points
+    const playersPoints = [];
+
     // Sort results by timeElapsed
     const sortedResults = results.sort((a, b) => a.timeElapsed - b.timeElapsed);
     const resultsWithPosition = sortedResults.map((result, index) => ({
@@ -45,6 +47,8 @@ const calculateRankedPoints = async (results) => {
             // If position match, get base points
             console.log(`${player.username}'s position matches: ${player.position}. Gain ${basePoints} points`);
             await insertLeaderboardScore(getClient(), player.username, basePoints);
+            playersPoints.push({username: player.username, points: basePoints}
+            );
         } else {
             // If positions don't match, check if it's better or worse
             console.log(`${player.username}'s position does not match`);
@@ -59,23 +63,27 @@ const calculateRankedPoints = async (results) => {
                     const totalPoints = basePoints + additionalPoints;
                     console.log(`${player.username} is better. Gain ${totalPoints} points`);
                     await insertLeaderboardScore(getClient(), player.username, totalPoints);
+                    playersPoints.push({username: player.username, points: totalPoints});
                 } else {
                     // If player is worse, get base points / 2
                     const penaltyPoints = isPerformance ? Math.round(loserMultiplier * bonusPoints * positionDifference) : 0;
                     const totalPoints = basePoints / 2 - penaltyPoints;
                     console.log(`${player.username} is worse. Gain ${totalPoints} points`);
                     await insertLeaderboardScore(getClient(), player.username, totalPoints);
+                    playersPoints.push({username: player.username, points: totalPoints});
                 }
             } else {
                 // If player is not in the results, get base points / 2
                 console.log(`${player.username} is not in the results. Gain ${basePoints / 2} points`);
                 await insertLeaderboardScore(getClient(), player.username, basePoints / 2);
+                playersPoints.push({username: player.username, points: basePoints / 2});
             }
         }
     }
 
     // Update leaderboard
     await updatePosition(getClient());
+    return playersPoints;
 }
 
 module.exports = {

@@ -553,6 +553,7 @@ const Multi = ({isAuthenticated, isAdmin}) => {
                                                                     <th>Rank</th>
                                                                     <th>Username</th>
                                                                     <th>Time</th>
+                                                                    {ranked && <th>Points</th>}
                                                                 </tr>
                                                                 </thead>
                                                                 <tbody>
@@ -561,6 +562,7 @@ const Multi = ({isAuthenticated, isAdmin}) => {
                                                                         <td>{index + 1}</td>
                                                                         <td>{result.username}</td>
                                                                         <td>{result.timeElapsed}</td>
+                                                                        {ranked && <td>{result.points}</td>}
                                                                     </tr>
                                                                 })}
                                                                 </tbody>
@@ -583,6 +585,7 @@ const Multi = ({isAuthenticated, isAdmin}) => {
                                                                 <th>Rank</th>
                                                                 <th>Username</th>
                                                                 <th>Time</th>
+                                                                {ranked && <th>Points</th>}
                                                             </tr>
                                                             </thead>
                                                             <tbody>
@@ -591,6 +594,7 @@ const Multi = ({isAuthenticated, isAdmin}) => {
                                                                     <td>{index + 1}</td>
                                                                     <td>{result.username}</td>
                                                                     <td>{result.timeElapsed}</td>
+                                                                    {ranked && <td>{result.points}</td>}
                                                                 </tr>
                                                             })}
                                                             </tbody>
