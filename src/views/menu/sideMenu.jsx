@@ -86,6 +86,12 @@ const sideMenu = ({isAuthenticated, isAdmin}) => {
                                     <span className="text nav-text">GitHub</span>
                                 </a>
                             </li>
+                            <li className="nav-links">
+                                <Link to="/chess">
+                                    <i className='bx bxs-chess icon'></i>
+                                    <span className="text nav-text">Chess</span>
+                                </Link>
+                            </li>
                             {isAdmin ? (
                                 <li className="nav-links">
                                     <a href="#">
