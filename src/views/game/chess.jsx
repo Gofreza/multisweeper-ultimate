@@ -1,11 +1,30 @@
-import React from "react";
+import React, {useEffect} from "react";
 import "/public/css/chessboard-1.0.0.min.css";
 import SideMenu from "../menu/sideMenu";
 
 const Chess = ({ isAuthenticated, isAdmin }) => {
+
     const handleStartButtonClick = () => {
         window.location.reload(); // Refresh the page
     };
+
+    const preventDefaultTouchMove = (event) => {
+        event.preventDefault();
+    };
+
+    // Add this useEffect to attach the touchmove event listener when the component mounts
+    useEffect(() => {
+        const chessboardElement = document.getElementById('myBoard');
+
+        if (chessboardElement) {
+            chessboardElement.addEventListener('touchmove', preventDefaultTouchMove, { passive: false });
+
+            // Clean up the event listener when the component is unmounted
+            return () => {
+                chessboardElement.removeEventListener('touchmove', preventDefaultTouchMove);
+            };
+        }
+    }, []);
 
     return (
         <>
