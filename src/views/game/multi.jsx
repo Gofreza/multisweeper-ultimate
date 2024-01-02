@@ -21,7 +21,7 @@ const Multi = ({isAuthenticated, isAdmin}) => {
     const socketRef = useRef(null);
     const [rows, setRows] = useState(10);
     const [cols, setCols] = useState(10);
-    const isHost = players[0] === getCookies()['username'];
+    const [isHost, setIsHost] = useState(false);
     const roomId = getCookies()['multiRoomId'];
     const [numBombsJoin, setNumBombsJoin] = useState(0);
     const [timeElapsedJoin, setTimeElapsedJoin] = useState(0);
@@ -347,8 +347,9 @@ const Multi = ({isAuthenticated, isAdmin}) => {
             })
                 .then(response => response.json())
                 .then(data => {
-                    //console.log("Join multi room:", data);
-
+                    console.log("Join multi room:", data);
+                    setPlayers(data.players);
+                    setIsHost(data.isHost);
                     if (data.started) {
                         //console.log("Grid:", data.grid)
                         setCols(data.grid.width);
@@ -362,8 +363,8 @@ const Multi = ({isAuthenticated, isAdmin}) => {
 
                         // Grid
                         let res = [];
-                        for (let x = 0; x < rows; x++) {
-                            for (let y = 0; y < cols; y++) {
+                        for (let x = 0; x < data.grid.length; x++) {
+                            for (let y = 0; y < data.grid.width; y++) {
                                 if (data.grid.matrix[x][y].flagged) {
                                     res.push({row: x, col: y, flagged: true})
                                 } else if (data.grid.matrix[x][y].number !== -5) {
@@ -383,7 +384,6 @@ const Multi = ({isAuthenticated, isAdmin}) => {
                         setShowResultModal(true)
                         setResults(data.results)
                     }
-                    setPlayers(data.players);
                     socketRef.current.emit('join-room', {roomName:roomName})
                     socketRef.current.emit('propagate-user-data', {players: data.players, roomName: roomName})
                     //console.log("Send propagate-user-data event")
@@ -405,8 +405,9 @@ const Multi = ({isAuthenticated, isAdmin}) => {
             })
                 .then(response => response.json())
                 .then(data => {
-                    //console.log(data);
+                    console.log(data);
                     setPlayers(data.players);
+                    setIsHost(data.isHost);
                     socketRef.current.emit('create-room', {roomName:roomName})
                     //console.log("Send create-room event")
                     setIsDataLoaded(true);

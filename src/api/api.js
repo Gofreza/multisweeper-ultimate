@@ -239,7 +239,7 @@ router.post('/api/create-multi-room', (req, res) => {
         const roomId = roomData.addMultiRoom(roomName, 1, username, ranked)
         console.log("Create Room:", roomData.getMultiRoom(roomId));
         res.cookie('multiRoomId', roomId, {httpOnly: false})
-        res.status(200).send({multiRoomId: roomId, players: [username]});
+        res.status(200).send({multiRoomId: roomId, players: [username], isHost: true});
     } catch (error) {
         console.error('Error creating multi game (api):', error);
         res.status(500).send({ message: 'Internal Server Error' });
@@ -252,9 +252,11 @@ router.post('/api/join-multi-room', (req, res) => {
         const username = req.session.accountUsername;
         const roomIdJoined = roomData.joinMultiRoom(roomId, username);
         const room = roomData.getMultiRoom(roomIdJoined);
+        const isHost = room.players[0] === username;
         //console.log("Room:", room)
 
-        if (room.started) {
+        // Check if the game is started and the player is not in the room
+        if (room.started && !room.players.includes(username)) {
             return res.status(400).send({ message: 'Game already started' });
         }
 
@@ -262,13 +264,13 @@ router.post('/api/join-multi-room', (req, res) => {
             const results = room.game.getMultiResults();
             if (req.cookies.multiRoomId) {
                 // Already in a room
-                res.status(200).send({ roomId: roomIdJoined, roomName: room.name, players: room.players, ranked: room.ranked, results: results });
+                res.status(200).send({ roomId: roomIdJoined, roomName: room.name, players: room.players, ranked: room.ranked, results: results, isHost: isHost });
             } else {
                 // Just join the room
                 // Do +1 to the number of players
                 room.numPlayers++;
                 res.cookie('multiRoomId', roomIdJoined, {httpOnly: false})
-                res.status(200).send({ roomId: roomIdJoined, roomName: room.name, players: room.players, ranked: room.ranked, results: results });
+                res.status(200).send({ roomId: roomIdJoined, roomName: room.name, players: room.players, ranked: room.ranked, results: results, isHost: isHost });
             }
         } else if (room.started) {
             const game = room.game;
@@ -288,7 +290,7 @@ router.post('/api/join-multi-room', (req, res) => {
                 }
             }
 
-            res.status(200).send({ roomId: roomIdJoined, roomName: room.name, players: room.players, ranked: room.ranked, started: true, grid: currentGrid, numBombs:numBombs, timeElapsed: timeElapsed });
+            res.status(200).send({ roomId: roomIdJoined, roomName: room.name, players: room.players, ranked: room.ranked, started: true, grid: currentGrid, numBombs:numBombs, timeElapsed: timeElapsed, isHost: isHost });
         } else {
 
             // Check if the user is already in the room
@@ -296,14 +298,14 @@ router.post('/api/join-multi-room', (req, res) => {
                 // Already in a room
                 console.log(username + "Join Room:" + room.name)
                 //console.log("Already in a room (api):", req.cookies.multiRoomId)
-                res.status(200).send({ roomId: roomIdJoined, roomName: room.name, ranked: room.ranked, players: room.players });
+                res.status(200).send({ roomId: roomIdJoined, roomName: room.name, ranked: room.ranked, players: room.players, isHost: isHost });
             } else {
                 // Just join the room
                 // Do +1 to the number of players
                 console.log(username + "Join Room:" + room.name)
                 room.numPlayers++;
                 res.cookie('multiRoomId', roomIdJoined, {httpOnly: false})
-                res.status(200).send({ roomId: roomIdJoined, roomName: room.name, ranked: room.ranked, players: room.players });
+                res.status(200).send({ roomId: roomIdJoined, roomName: room.name, ranked: room.ranked, players: room.players, isHost: isHost });
             }
 
         }

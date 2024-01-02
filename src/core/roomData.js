@@ -29,8 +29,6 @@ class RoomData {
     /* ===========
         Solo Room
        =========== */
-
-
     addSoloRoom(row, col, playerName) {
         let room = {
             id: RoomData.ID,
