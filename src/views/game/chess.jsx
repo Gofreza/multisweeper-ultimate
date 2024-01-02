@@ -18,7 +18,7 @@ const Chess = ({ isAuthenticated, isAdmin }) => {
                     <button onClick={handleStartButtonClick}>Start</button>
                     <div className="selectContainer">
                         <label htmlFor="search-depth">Search Depth (Black):</label>
-                        <select id="search-depth" defaultValue={2}>
+                        <select id="search-depth" defaultValue="2">
                             <option value="1">1</option>
                             <option value="2">2</option>
                             <option value="3">3</option>
