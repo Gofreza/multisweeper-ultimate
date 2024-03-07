@@ -113,7 +113,7 @@ const Solo = ({isAuthenticated, isAdmin}) => {
 
     const addClickListeners = () => {
         const isTouchDevice = 'maxTouchPoints' in navigator && navigator.maxTouchPoints > 0;
-        console.log("IsTouchDevice:", isTouchDevice)
+        // console.log("IsTouchDevice:", isTouchDevice)
         const leftClickEvent = isTouchDevice ? 'touchstart' : 'click';
         const rightClickEvent = isTouchDevice ? 'contextmenu' : 'contextmenu';
 
@@ -185,7 +185,7 @@ const Solo = ({isAuthenticated, isAdmin}) => {
 
     useEffect(() => {
         // This code will run after setCellsMatrix has completed and the component has re-rendered
-        console.log('Cells matrix updated:', cellsMatrix);
+        // console.log('Cells matrix updated:', cellsMatrix);
         redrawGrid(cellsMatrix, row, col, cellSize);
     }, [cellsMatrix]);
 
@@ -340,7 +340,7 @@ const Solo = ({isAuthenticated, isAdmin}) => {
                 setShowResultModal(true)
             } else {
                 if (data.length > 0) {
-                    console.log("Data:", data)
+                    //console.log("Data:", data)
                     redrawGridBis(data, cellSize);
                 }
             }

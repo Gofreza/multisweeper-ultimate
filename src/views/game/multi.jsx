@@ -116,14 +116,14 @@ const Multi = ({isAuthenticated, isAdmin}) => {
             clientY = event.clientY;
         }
 
-        console.log(clientX, clientY)
+        //console.log(clientX, clientY)
         const { row, col } = getGridCoordinates(clientX, clientY, cellSize);
 
         if (isTouchEvent) {
             clearTimeout(clickTimeout.current);
             clickTimeout.current = setTimeout(() => {
                 timeoutFinished = true;
-                console.log(`Long press detected on cell (${row}, ${col})`);
+                // console.log(`Long press detected on cell (${row}, ${col})`);
                 // Perform the desired action for a long press (right-click)
                 socketRef.current.emit('right-click-multi', { row, col, roomId: getCookies()['multiRoomId'], username: getCookies()['username'], roomName: roomName })
             }, 200);
@@ -132,14 +132,14 @@ const Multi = ({isAuthenticated, isAdmin}) => {
             setTimeout(() => {
                 // Perform the desired action for a quick tap (left-click)
                 if (!timeoutFinished) {
-                    console.log(`Quick tap detected on cell (${row}, ${col})`);
+                    // console.log(`Quick tap detected on cell (${row}, ${col})`);
                     socketRef.current.emit('left-click-multi', { row, col, roomId: getCookies()['multiRoomId'], username: getCookies()['username'], roomName: roomName })
                 }
             }, 200);
         } else {
             // Quick tap (left-click)
             clearTimeout(clickTimeout.current);
-            console.log(`Left click on cell (${row}, ${col})`);
+            // console.log(`Left click on cell (${row}, ${col})`);
             socketRef.current.emit('left-click-multi', { row, col, roomId: getCookies()['multiRoomId'], username: getCookies()['username'], roomName: roomName })
         }
     }, []);
@@ -157,13 +157,13 @@ const Multi = ({isAuthenticated, isAdmin}) => {
         clientY = event.clientY;
 
         const { row, col } = getGridCoordinates(clientX, clientY, cellSize);
-        console.log(`Right clicked on cell (${row}, ${col})`);
+        // console.log(`Right clicked on cell (${row}, ${col})`);
         socketRef.current.emit('right-click-multi', { row, col, roomId: getCookies()['multiRoomId'], username: getCookies()['username'], roomName: roomName })
     }, []);
 
     const addClickListeners = () => {
         const isTouchDevice = 'maxTouchPoints' in navigator && navigator.maxTouchPoints > 0;
-        console.log("IsTouchDevice:", isTouchDevice)
+        //console.log("IsTouchDevice:", isTouchDevice)
         const leftClickEvent = isTouchDevice ? 'touchstart' : 'click';
         const rightClickEvent = isTouchDevice ? 'contextmenu' : 'contextmenu';
 
@@ -315,7 +315,7 @@ const Multi = ({isAuthenticated, isAdmin}) => {
                     bombs.innerHTML = (parseInt(bombs.innerHTML) + 1).toString();
                 }
             } catch (e) {
-                console.log(e)
+                console.error(e)
             }
 
             if (data.gameEnded) {
@@ -359,7 +359,7 @@ const Multi = ({isAuthenticated, isAdmin}) => {
             })
                 .then(response => response.json())
                 .then(data => {
-                    console.log("Join multi room:", data);
+                    // console.log("Join multi room:", data);
                     setPlayers(data.players);
                     setIsHost(data.isHost);
                     if (data.started) {
@@ -418,7 +418,7 @@ const Multi = ({isAuthenticated, isAdmin}) => {
             })
                 .then(response => response.json())
                 .then(data => {
-                    console.log(data);
+                    // console.log(data);
                     setPlayers(data.players);
                     setIsHost(data.isHost);
                     socketRef.current.emit('create-room', {roomName:roomName})
@@ -500,7 +500,7 @@ const Multi = ({isAuthenticated, isAdmin}) => {
 
     // Draw the grid if game started
     useEffect(() => {
-        console.log("isGameStarted:", isGameStarted)
+        // console.log("isGameStarted:", isGameStarted)
         if (isGameStarted) {
             const bombsCanvas = document.getElementById('bombsCounter');
             drawBomb(bombsCanvas.getContext('2d'), 20, 20, 10, 4);
@@ -527,7 +527,7 @@ const Multi = ({isAuthenticated, isAdmin}) => {
     useEffect(() => {
         //console.log("CellsMatrix updated:", cellsMatrix)
         if (isGameStarted) {
-            console.log("Redraw grid")
+            // console.log("Redraw grid")
             redrawGrid(cellsMatrix, rows, cols, cellSize);
         }
     }, [cellsMatrix]);
