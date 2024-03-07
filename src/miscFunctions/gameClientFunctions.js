@@ -1,3 +1,5 @@
+import {element} from "prop-types";
+
 const getCookies = () => {
 
     if (!document.cookie) {
@@ -202,6 +204,7 @@ const redrawGrid = (cellsMatrix, row, col, cellSize) => {
                     }
                 }
             } else {
+                // console.log("No Cell")
                 // Draw the background
                 ctx.fillStyle = "#999999";
                 ctx.fillRect(x, y, cellSize, cellSize);
@@ -210,4 +213,108 @@ const redrawGrid = (cellsMatrix, row, col, cellSize) => {
     }
 };
 
-export { getCookies, getGridCoordinates, drawBomb, drawGrid, redrawGrid};
+const redrawGridBis = (data, cellSize) => {
+    const canvas = document.getElementById('grid');
+    const ctx = canvas.getContext('2d');
+
+    ctx.strokeStyle = "#000000"; // Set stroke color to black
+    ctx.lineWidth = 1;
+
+    data.forEach((element) => {
+        const x = element.col * cellSize;
+        const y = element.row * cellSize;
+
+        if ('flagged' in element) {
+            if (element.flagged) {
+                // Set the background color
+                ctx.fillStyle = "#999999";
+                ctx.fillRect(x, y, cellSize, cellSize);
+
+                // Set flag dimensions and position
+                const flagWidth = cellSize / 2;
+                const flagHeight = cellSize / 2;
+                const flagX = x + cellSize / 4;
+                const flagY = y + cellSize / 4;
+
+                const xF = flagX + flagWidth / 2;
+                const yF = flagY + flagHeight / 2;
+                const radius = flagWidth / 2;
+                const offset = flagWidth / 4;
+
+                // Draw a flag
+                ctx.fillStyle = "#ff0000"; // Set the fill color to red
+                // Draw the flag shape
+                /*ctx.moveTo(xF - 2, yF + radius);
+                ctx.lineTo(xF - 3.5, yF - 1);
+                ctx.stroke();
+                ctx.moveTo(xF - 3, yF - 1);
+                ctx.lineTo(xF - radius / 2, yF - radius - offset);
+                ctx.stroke();
+                ctx.lineTo(xF + radius + offset, yF - radius / 2 - offset);
+                ctx.stroke();
+                ctx.lineTo(xF - 3, yF - 1);
+                ctx.stroke();
+
+                // Draw additional lines
+                ctx.moveTo(xF - 8, yF + radius);
+                ctx.lineTo(xF + 4, yF + radius);
+                ctx.stroke();
+
+                ctx.closePath();
+                ctx.fill();*/
+
+                ctx.fillRect(element.col * cellSize + cellSize / 4, element.row * cellSize + cellSize / 4, cellSize / 2, cellSize / 2); // Draw a flag
+            }
+            else {
+                // console.log("No Cell")
+                // Draw the background
+                ctx.fillStyle = "#999999";
+                ctx.fillRect(x, y, cellSize, cellSize);
+            }
+        }
+        else {
+            // Draw the background
+            ctx.fillStyle = "#f9f8f5";
+            ctx.fillRect(x, y, cellSize, cellSize);
+
+            // Determine the text color
+            let textColor = "#000000"; // Set the default text color to black
+            if (element.number === 1) {
+                textColor = "blue"; // Change the text color to blue if the number is 1
+            } else if (element.number === 2) {
+                textColor = "green"; // Change the text color to green if the number is 2
+            } else if (element.number === 3) {
+                textColor = "red"; // Change the text color to red if the number is 3
+            } else if (element.number === 4) {
+                textColor = "#00008B";
+            } else if (element.number === 5) {
+                textColor = "#8B0000";
+            } else if (element.number === 6) {
+                textColor = "#00FFFF";
+            } else if (element.number === 7) {
+                textColor = "black";
+            } else if (element.number === 8) {
+                textColor = "grey";
+            }
+
+            // Draw the text
+            if (element.number !== 0) {
+                ctx.fillStyle = textColor; // Set the fill color to the determined text color
+                ctx.font = "20px Arial"; // Set the font size and type
+                ctx.textAlign = "center"; // Set the text alignment to center
+                ctx.textBaseline = "middle"; // Set the text baseline to middle
+                if (element.number === -1) {
+                    //ctx.fillText("B", x + cellSize / 2, y + cellSize / 2);
+                    drawBomb(ctx, x + cellSize / 2, y + cellSize / 2, 10, 4)
+                } else {
+                    ctx.fillText(element.number.toString(), x + cellSize / 2, y + cellSize / 2);
+                }
+            }
+        }
+
+        // Draw the borders
+        ctx.strokeRect(x, y, cellSize, cellSize);
+    })
+};
+
+export { getCookies, getGridCoordinates, drawBomb, drawGrid, redrawGrid, redrawGridBis};

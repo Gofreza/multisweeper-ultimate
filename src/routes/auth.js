@@ -30,8 +30,8 @@ router.post('/login', async (req, res) => {
                 }
                 // Password is correct, proceed
                 const token = jwt.sign({username: username}, process.env.SECRET_KEY, {expiresIn: '24h'});
-                res.cookie('token', token, {httpOnly: true});
-                res.cookie('username', username, {httpOnly: false}); //Non-sensitive data
+                res.cookie('token', token, {httpOnly: true, sameSite: 'strict'});
+                res.cookie('username', username, {httpOnly: false, sameSite: 'strict'}); //Non-sensitive data
 
                 // Add a connection to the database
                 await addConnectionPG(pgClient, token, username);

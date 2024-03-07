@@ -1,7 +1,14 @@
 import SideMenu from "../menu/sideMenu";
 import {useLocation} from "react-router-dom";
 import {useCallback, useEffect, useRef, useState} from "react";
-import {drawBomb, drawGrid, getCookies, getGridCoordinates, redrawGrid} from "../../miscFunctions/gameClientFunctions";
+import {
+    drawBomb,
+    drawGrid,
+    getCookies,
+    getGridCoordinates,
+    redrawGrid,
+    redrawGridBis
+} from "../../miscFunctions/gameClientFunctions";
 import styles from "/public/css/game.module.css"
 import io from "socket.io-client";
 
@@ -269,23 +276,27 @@ const Multi = ({isAuthenticated, isAdmin}) => {
                     //console.log("Reveal Neighbors activated")
                     if (data.isBomb) {
                         //console.log("Bomb found neighbor, here are the problems:", data.revealedCells)
-                        setCellsMatrix((prevData) => [...prevData, ...data.revealedCells]);
+                        //setCellsMatrix((prevData) => [...prevData, ...data.revealedCells]);
+                        redrawGridBis(data.revealedCells, cellSize);
                         data.revealedCells.forEach(_ => {
                             bombs.innerHTML = (bombs.innerHTML - 1).toString();
                         })
                         updateTimer(5)
                     } else {
                         //console.log("No bomb found:", data.revealedCells)
-                        setCellsMatrix((prevData) => [...prevData, ...data.revealedCells]);
+                        //setCellsMatrix((prevData) => [...prevData, ...data.revealedCells]);
+                        redrawGridBis(data.revealedCells, cellSize);
                     }
                 } else {
                     if (data.isBomb) {
                         //console.log("Bomb found:", data.revealedCells)
-                        setCellsMatrix((prevData) => [...prevData, ...data.revealedCells]);
+                        //setCellsMatrix((prevData) => [...prevData, ...data.revealedCells]);
+                        redrawGridBis(data.revealedCells, cellSize);
                         bombs.innerHTML = (bombs.innerHTML - 1).toString();
                         updateTimer(5)
                     } else {
-                        setCellsMatrix((prevData) => [...prevData, ...data]);
+                        //setCellsMatrix((prevData) => [...prevData, ...data]);
+                        redrawGridBis(data, cellSize);
                     }
                 }
             }
@@ -313,7 +324,8 @@ const Multi = ({isAuthenticated, isAdmin}) => {
                 //console.log("Data", data)
 
                 if (data.length > 0) {
-                    setCellsMatrix((prevData) => {
+                    redrawGridBis(data, cellSize);
+                    /*setCellsMatrix((prevData) => {
                         //console.log("CellsMatrix", prevData)
                         const c = prevData.find(item => item.row === data[0].row && item.col === data[0].col)
                         //console.log(c)
@@ -324,7 +336,7 @@ const Multi = ({isAuthenticated, isAdmin}) => {
                         } else {
                             return [...prevData, ...data];
                         }
-                    })
+                    })*/
                 }
             }
         })
@@ -375,7 +387,8 @@ const Multi = ({isAuthenticated, isAdmin}) => {
                         // Flatten the array of arrays
                         const flattenedRes = res.flat();
 
-                        setCellsMatrix((prevData) => [...prevData, ...flattenedRes]);
+                        //setCellsMatrix((prevData) => [...prevData, ...flattenedRes]);
+                        redrawGridBis(flattenedRes, cellSize);
 
                         setIsGameStarted(true);
                     } else if (data.results){

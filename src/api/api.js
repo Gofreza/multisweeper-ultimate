@@ -237,7 +237,7 @@ router.post('/api/create-multi-room', (req, res) => {
         const {roomName, ranked} = req.body;
         const username = req.session.accountUsername;
         const roomId = roomData.addMultiRoom(roomName, 1, username, ranked)
-        console.log("Create Room:", roomData.getMultiRoom(roomId));
+        //console.log("Create Room:", roomData.getMultiRoom(roomId));
         res.cookie('multiRoomId', roomId, {httpOnly: false})
         res.status(200).send({multiRoomId: roomId, players: [username], isHost: true});
     } catch (error) {

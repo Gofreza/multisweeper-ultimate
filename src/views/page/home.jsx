@@ -215,10 +215,6 @@ const Home = ({isAuthenticated, isAdmin}) => {
                         </thead>
                         <tbody>
                             <tr>
-                                <td>Phantom Flag: When you place and remove a flag, if you place a flag after the previous one the old one will reappear but don't count as a flag.</td>
-                                <td>Fixed: No. Refresh the page to make the phantom flags disappear.</td>
-                            </tr>
-                            <tr>
                                 <td>The stats are not updated after a game.</td>
                                 <td>Fixed: No I'm lazy.</td>
                             </tr>

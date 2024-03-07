@@ -3,7 +3,14 @@ import {useCallback, useEffect, useRef, useState} from "react";
 import {useLocation} from "react-router-dom";
 import io from "socket.io-client";
 import styles from "/public/css/game.module.css"
-import {drawBomb, drawGrid, getCookies, getGridCoordinates, redrawGrid} from "../../miscFunctions/gameClientFunctions";
+import {
+    drawBomb,
+    drawGrid,
+    getCookies,
+    getGridCoordinates,
+    redrawGrid,
+    redrawGridBis
+} from "../../miscFunctions/gameClientFunctions";
 
 const DIFFICULTY_NORMAL = 0.15;
 
@@ -13,8 +20,8 @@ const Solo = ({isAuthenticated, isAdmin}) => {
     const cellSize = 40;
     const [cellsMatrix, setCellsMatrix] = useState([]);
     const [showResultModal, setShowResultModal] = useState(false);
-    const [isGameWin, setIsGameWin] = useState(false);
-    const socketRef = useRef(null);
+    const [isGameWin, setIsGameWin] = useState(false); // Hold value, re-render
+    const socketRef = useRef(null); // Hold value, no re-render
     const clickTimeout = useRef(null);
     let timerInterval = null;
 
@@ -59,14 +66,14 @@ const Solo = ({isAuthenticated, isAdmin}) => {
             clientY = event.clientY;
         }
 
-        console.log(clientX, clientY)
+        // console.log(clientX, clientY)
         const { row, col } = getGridCoordinates(clientX, clientY, cellSize);
 
         if (isTouchEvent) {
             clearTimeout(clickTimeout.current);
             clickTimeout.current = setTimeout(() => {
                 timeoutFinished = true;
-                console.log(`Long press detected on cell (${row}, ${col})`);
+                // console.log(`Long press detected on cell (${row}, ${col})`);
                 // Perform the desired action for a long press (right-click)
                 socketRef.current.emit('right-click', { row, col, roomId: getCookies()['roomId'] });
             }, 200);
@@ -75,14 +82,14 @@ const Solo = ({isAuthenticated, isAdmin}) => {
             setTimeout(() => {
                 // Perform the desired action for a quick tap (left-click)
                 if (!timeoutFinished) {
-                    console.log(`Quick tap detected on cell (${row}, ${col})`);
+                    // console.log(`Quick tap detected on cell (${row}, ${col})`);
                     socketRef.current.emit('left-click', { row, col, roomId: getCookies()['roomId'] });
                 }
             }, 200);
         } else {
             // Quick tap (left-click)
             clearTimeout(clickTimeout.current);
-            console.log(`Left click on cell (${row}, ${col})`);
+            // console.log(`Left click on cell (${row}, ${col})`);
             socketRef.current.emit('left-click', { row, col, roomId: getCookies()['roomId'] });
         }
     }, []);
@@ -100,7 +107,7 @@ const Solo = ({isAuthenticated, isAdmin}) => {
         clientY = event.clientY;
 
         const { row, col } = getGridCoordinates(clientX, clientY, cellSize);
-        console.log(`Right clicked on cell (${row}, ${col})`);
+        // console.log(`Right clicked on cell (${row}, ${col})`);
         socketRef.current.emit('right-click', {row, col, roomId: getCookies()['roomId']})
     }, []);
 
@@ -206,7 +213,8 @@ const Solo = ({isAuthenticated, isAdmin}) => {
                     if (responseJson.isFinished) {
                         setShowResultModal(true)
                         setIsGameWin(responseJson.isGameWin)
-                        setCellsMatrix(responseJson.room)
+                        //setCellsMatrix(responseJson.room)
+                        redrawGridBis(responseJson.room, cellSize);
                     } else {
                         let res = [];
                         for (let x = 0; x < row; x++) {
@@ -230,7 +238,8 @@ const Solo = ({isAuthenticated, isAdmin}) => {
                         // Flatten the array of arrays
                         const flattenedRes = res.flat();
 
-                        setCellsMatrix((prevData) => [...prevData, ...flattenedRes]);
+                        //setCellsMatrix((prevData) => [...prevData, ...flattenedRes]);
+                        redrawGridBis(flattenedRes, cellSize);
                     }
                 })
 
@@ -274,7 +283,8 @@ const Solo = ({isAuthenticated, isAdmin}) => {
                 }
                 removeClickListeners();
                 if (data.gridCells)
-                    setCellsMatrix(data.gridCells)
+                    //setCellsMatrix(data.gridCells)
+                    redrawGridBis(data.gridCells, cellSize);
                 stopTimer();
                 //alert('Game ended');
                 setShowResultModal(true)
@@ -284,16 +294,19 @@ const Solo = ({isAuthenticated, isAdmin}) => {
                     //console.log("Reveal Neighbors activated")
                     if (data.isBomb) {
                         //console.log("Bomb found")
-                        setCellsMatrix(data.revealedCells)
+                        //setCellsMatrix(data.revealedCells)
+                        redrawGridBis(data.revealedCells, cellSize);
                         setIsGameWin(false)
                         stopTimer()
                         setShowResultModal(true)
                     } else {
                         //console.log("No bomb found:", data.revealedCells)
-                        setCellsMatrix((prevData) => [...prevData, ...data.revealedCells]);
+                        //setCellsMatrix((prevData) => [...prevData, ...data.revealedCells]);
+                        redrawGridBis(data.revealedCells, cellSize);
                     }
                 } else {
-                    setCellsMatrix((prevData) => [...prevData, ...data]);
+                    //setCellsMatrix((prevData) => [...prevData, ...data]);
+                    redrawGridBis(data, cellSize);
                 }
             }
 
@@ -301,7 +314,7 @@ const Solo = ({isAuthenticated, isAdmin}) => {
         })
 
         socketRef.current.on('right-click', (data) => {
-            console.log('Received right-click event:', data);
+            // console.log('Received right-click event:', data);
 
             // Update the number of bombs
             const bombs = document.getElementById('bombs');
@@ -320,25 +333,15 @@ const Solo = ({isAuthenticated, isAdmin}) => {
                     setIsGameWin(true)
                 removeClickListeners();
                 if (data.gridCells)
-                    setCellsMatrix(data.gridCells)
+                    //setCellsMatrix(data.gridCells)
+                    redrawGridBis(data.gridCells, cellSize);
                 stopTimer();
                 //alert('Game ended');
                 setShowResultModal(true)
             } else {
                 if (data.length > 0) {
-                    setCellsMatrix((prevData) => {
-                        //console.log("CellsMatrix", prevData)
-                        const c = prevData.find(item => item.row === data[0].row && item.col === data[0].col)
-                        //console.log(c)
-
-                        if (c) {
-                            //console.log("Cell found")
-                            return prevData.filter(item => !(item.row === data[0].row && item.col === data[0].col));
-                        } else {
-                            //console.log("Cell not found")
-                            return [...prevData, ...data];
-                        }
-                    })
+                    console.log("Data:", data)
+                    redrawGridBis(data, cellSize);
                 }
             }
 
