@@ -215,8 +215,8 @@ const Home = ({isAuthenticated, isAdmin}) => {
                         </thead>
                         <tbody>
                             <tr>
-                                <td>The stats are not updated after a game.</td>
-                                <td>Fixed: No I'm lazy.</td>
+                                <td>The stats are not updated correctly in multiplayer. Only the first person to finish can obtain it's win/loss. </td>
+                                <td>Working on it.</td>
                             </tr>
                         </tbody>
                     </table>

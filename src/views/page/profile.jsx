@@ -187,7 +187,7 @@ const Profile = ({isAuthenticated, isAdmin}) => {
                                             <td>{stat.numcellsrevealed}</td>
                                         </tr>
                                         <tr>
-                                            <td>Time:</td>
+                                            <td>Average Time:</td>
                                             <td>{stat.averagetime}</td>
                                         </tr>
                                         </tbody>

@@ -82,6 +82,7 @@ async function verifyConnection(req, res, next) {
 }
 
 
+
 module.exports = {
     generateBombCoordinates, verifyConnection, isNotConnected,
 }

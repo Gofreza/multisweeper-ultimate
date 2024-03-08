@@ -11,7 +11,7 @@ async function updateStats(pgClient, username, stats) {
         const existingStatsQuery = {
             name: "get-existing-stats",
             text: `
-            SELECT stats.column1, stats.column2, ..., users.columnA, users.columnB, ...
+            SELECT numGamesPlayed, numGamesWon, numGamesLost, numBombsDefused, numBombsExploded, numFlagsPlaced, numCellsRevealed, averageTime, fastestTime, longestTime
             FROM stats
             INNER JOIN users ON stats.user = users.id
             WHERE users.username = $1 AND stats.gameMode = $2`,
@@ -35,12 +35,12 @@ async function updateStats(pgClient, username, stats) {
             // TODO: Handle average time properly
             // Doesn't need to pass three time, only one is enough
             // Just need to do the math after
-            if (existingStats.averageTime) {
-                stats.averageTime = (stats.averageTime * stats.numGamesPlayed + existingStats.averageTime * existingStats.numGamesPlayed) / (stats.numGamesPlayed + existingStats.numGamesPlayed);
-            }
+            stats.fastestTime = Math.min(stats.fastestTime, existingStats.fastesttime);
+            stats.longestTime = Math.max(stats.longestTime, existingStats.longesttime);
 
-            stats.fastestTime = Math.min(stats.fastestTime, existingStats.fastestTime || Infinity);
-            stats.longestTime = Math.max(stats.longestTime, existingStats.longestTime || 0);
+            if (stats.isGameWin) {
+                stats.averageTime = ((stats.averageTime + existingStats.averagetime) / stats.numGamesPlayed).toFixed(1);
+            }
         }
 
         // Update the stats in the database
@@ -91,21 +91,29 @@ async function getStats(pgClient, username) {
 /**
  * Updates the winning stats for a user in the database.
  * @param pgClient - The database client
- * @param username - The username of the user
- * @param stats - The stats to update in json format
+ * @param scoreUpdates - An array of score updates in json format
+ *       => {username: string, gameMode: string, numGamesWon: number, numGamesLost: number}
  *                numGamesWon and numGamesLost are the only stats that are updated
  * @returns {Promise<void>} - A promise that resolves when the stats have been updated
  */
-async function updateWinningStats(pgClient, username, stats) {
+async function updateWinningStats(pgClient, scoreUpdates) {
     try {
-        const query = {
-            name: "update-winning-stats",
-            text: `UPDATE stats SET numgameswon = numgameswon + $1, numgameslost = numgameslost + $2 
-                WHERE "user" = (SELECT id FROM users WHERE username = $3) 
-                AND gamemode = $4`,
-            values: [stats.numGamesWon, stats.numGamesLost, username, stats.gameMode]
+        const queries = scoreUpdates.map((update) => {
+            const query =  {
+                name: "update-winning-stats",
+                text: `
+                    UPDATE stats 
+                    SET numgameswon = numgameswon + $1, numgameslost = numgameslost + $2 
+                    WHERE "user" = (SELECT id FROM users WHERE username = $3) 
+                    AND gamemode = $4`,
+                values: [update.numGamesWon, update.numGamesLost, update.username, update.gameMode],
+            };
+            return pgClient.query(query);
+        });
+
+        for (const queryPromise of queries) {
+            await queryPromise;
         }
-        await pgClient.query(query);
     } catch (error) {
         console.error('Error occurred while updating winning stats:', error);
     }

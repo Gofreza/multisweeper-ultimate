@@ -110,7 +110,7 @@ function createStatsTable(){
             numBombsExploded INTEGER NOT NULL,
             numFlagsPlaced INTEGER NOT NULL,
             numCellsRevealed INTEGER NOT NULL,
-            averageTime INTEGER NOT NULL, 
+            averageTime FLOAT NOT NULL, 
             fastestTime INTEGER NOT NULL,
             longestTime INTEGER NOT NULL,
             FOREIGN KEY ("user") REFERENCES users(id),

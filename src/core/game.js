@@ -1,5 +1,7 @@
 const Grid = require("./grid");
 const _ = require('lodash');
+const {updateStats} = require("../database/dbStats");
+const {getClient} = require("../database/dbSetup");
 
 class Game {
 
@@ -221,7 +223,11 @@ class Game {
                 timeElapsed: 0,
                 timerInterval: null,
                 mainGrid: newMainGrid,
-                currentGrid: new Grid(this.rows, this.cols, username)
+                currentGrid: new Grid(this.rows, this.cols, username),
+                numBombsDefused: 0,
+                numBombsExploded: 0,
+                numFlagsPlaced: 0,
+                numCellsRevealed: 0
             });
             userGridIndex = this.multiGrids.length - 1;
             this.multiGrids[userGridIndex].timerInterval = setInterval(() => {
@@ -232,6 +238,39 @@ class Game {
 
     getMultiGrid(username) {
         return this.multiGrids.find((grid) => grid.username === username);
+    }
+
+    handleStatsUpdate(username) {
+        // console.log("Updating stats for user:", username);
+        let gameWin = 0;
+        let stats = {}
+        if (this.multiplayer) {
+            const multiGrid = this.getMultiGrid(username);
+            // Victory/Defeat is update after everyone finish
+            // Check socket game ended part
+            // Yes isGameWin is true because it's mandatory to update average time
+            stats = {
+                isGameWin: 1, gameMode: "multi", numGamesPlayed: 1,
+                numGamesWon: 0, numGamesLost: 0,
+                numBombsDefused: multiGrid.numBombsDefused, numBombsExploded: multiGrid.numBombsExploded,
+                numFlagsPlaced: multiGrid.numFlagsPlaced, numCellsRevealed: multiGrid.numCellsRevealed,
+                averageTime: multiGrid.timeElapsed, fastestTime: multiGrid.timeElapsed,
+                longestTime: multiGrid.timeElapsed
+            };
+        }
+        else {
+            this.isGameWin ? gameWin = 1 : gameWin = 0;
+            stats = {
+                isGameWin: gameWin, gameMode: "solo", numGamesPlayed: 1,
+                numGamesWon: gameWin, numGamesLost: 1 - gameWin,
+                numBombsDefused: this.numBombsDefused, numBombsExploded: this.numBombsExploded,
+                numFlagsPlaced: this.numFlagsPlaced, numCellsRevealed: this.numCellsRevealed,
+                averageTime: this.timeElapsed, fastestTime: this.timeElapsed,
+                longestTime: this.timeElapsed
+            };
+        }
+
+        updateStats(getClient(), username, stats);
     }
 
     handleLeftClick(row, col, username = null) {
@@ -253,31 +292,21 @@ class Game {
             // console.log("Cell:",this.grid.matrix[row][col].toString());
 
             if (this.grid.hasBomb(row, col)) {
-                if (this.multiplayer) {
-                    this.grid.setExploded(row, col);
-                    this.numBombsExploded++;
-                    return {isBomb: true, bombsList: [{bombRow: row, bombCol: col}]};
-                } else {
-                    this.isGameEnded = true;
-                    const gridCells = this.grid.revealGrid();
-                    this.stopTimer();
-                    return {gameEnded: true, isGameWin: false, gridCells: gridCells};
-                }
+                this.isGameEnded = true;
+                const gridCells = this.grid.revealGrid();
+                this.stopTimer();
+                this.numBombsExploded++;
+                if (username)
+                    this.handleStatsUpdate(username);
+                return {gameEnded: true, isGameWin: false, gridCells: gridCells};
             } else {
                 const res = this.grid.revealCell(row, col, false);
 
                 res.map((r) => {
-                    if (username) {
-                        // If the grid for this user doesn't exist, create it
-                        if (!this.multiGrids.find((grid) => grid.username === username)) {
-                            this.multiGrids.push(new Grid(this.rows, this.cols, username));
-                        }
-                        this.multiGrids.find((grid) => grid.username === username).setNumber(r.row, r.col, r.number);
-                        this.multiGrids.find((grid) => grid.username === username).setVisible(r.row, r.col);
-                    } else {
-                        this.currentGrid.setNumber(r.row, r.col, r.number);
-                        this.currentGrid.setVisible(r.row, r.col);
-                    }
+                    this.currentGrid.setNumber(r.row, r.col, r.number);
+                    this.currentGrid.setVisible(r.row, r.col);
+
+                    this.numCellsRevealed++;
                 })
 
                 // console.log("Game ended:", this.checkIfGameEnded());
@@ -285,6 +314,8 @@ class Game {
                     this.isGameEnded = true;
                     this.isGameWin = true;
                     this.stopTimer();
+                    if (username)
+                        this.handleStatsUpdate(username);
                     return {gameEnded: true, isGameWin: true, gridCells: this.grid.revealGrid()};
                 }
 
@@ -301,21 +332,16 @@ class Game {
                 this.isGameEnded = true;
                 this.isGameWin = true;
                 this.stopTimer();
+                if (username)
+                    this.handleStatsUpdate(username);
                 return {gameEnded: true, isGameWin: true, gridCells: this.grid.revealGrid()};
             }
 
             res.revealedCells.map((r) => {
-                if (username) {
-                    // If the grid for this user doesn't exist, create it
-                    if (!this.multiGrids.find((grid) => grid.username === username)) {
-                        this.multiGrids.push(new Grid(this.rows, this.cols, username));
-                    }
-                    this.multiGrids.find((grid) => grid.username === username).setNumber(r.row, r.col, r.number);
-                    this.multiGrids.find((grid) => grid.username === username).setVisible(r.row, r.col);
-                } else {
-                    this.currentGrid.setNumber(r.row, r.col, r.number);
-                    this.currentGrid.setVisible(r.row, r.col);
-                }
+                this.currentGrid.setNumber(r.row, r.col, r.number);
+                this.currentGrid.setVisible(r.row, r.col);
+
+                this.numCellsRevealed++;
             })
 
             // console.log("Neighbors:", res);
@@ -333,8 +359,9 @@ class Game {
         this.addMultiGrid(username);
 
         const userGridIndex = this.multiGrids.findIndex((grid) => grid.username === username);
-        const mainGrid = this.multiGrids[userGridIndex].mainGrid;
-        const userGrid = this.multiGrids[userGridIndex].currentGrid;
+        const multiGrid = this.multiGrids[userGridIndex];
+        const mainGrid = multiGrid.mainGrid;
+        const userGrid = multiGrid.currentGrid;
 
         if (mainGrid.isFlagged(row, col)) {
             return [];
@@ -346,7 +373,7 @@ class Game {
             if (mainGrid.hasBomb(row, col)) {
                 if (this.multiplayer) {
                     mainGrid.setExploded(row, col);
-                    this.numBombsExploded++;
+                    multiGrid.numBombsExploded++;
                     // Add malus for exploded bomb
                     this.multiGrids[userGridIndex].timeElapsed += 5
                     userGrid.numbombs = userGrid.numbombs - 1;
@@ -357,10 +384,11 @@ class Game {
                             userGrid.setNumber(r.row, r.col, r.number);
                             userGrid.toggleFlag(r.row, r.col);
                             userGrid.setVisible(r.row, r.col);
+                            multiGrid.numCellsRevealed++;
                         }
                     })
 
-                    console.log("Game ended hasBomb:", this.checkIfMultiGameEnded(mainGrid));
+                    // console.log("Game ended hasBomb:", this.checkIfMultiGameEnded(mainGrid));
                     if (this.checkIfMultiGameEnded(mainGrid)) {
                         this.isGameEnded = true;
                         this.isGameWin = true;
@@ -373,6 +401,8 @@ class Game {
                     this.isGameEnded = true;
                     const gridCells = mainGrid.revealGrid();
                     clearInterval(this.multiGrids[userGridIndex].timerInterval);
+                    if (username)
+                        this.handleStatsUpdate(username);
                     return {gameEnded: true, isGameWin: false, gridCells: gridCells};
                 }
             } else {
@@ -382,6 +412,7 @@ class Game {
                     if (username) {
                         userGrid.setNumber(r.row, r.col, r.number);
                         userGrid.setVisible(r.row, r.col);
+                        multiGrid.numCellsRevealed++;
                     } else {
                         this.currentGrid.setNumber(r.row, r.col, r.number);
                         this.currentGrid.setVisible(r.row, r.col);
@@ -393,6 +424,8 @@ class Game {
                     this.isGameEnded = true;
                     this.isGameWin = true;
                     clearInterval(this.multiGrids[userGridIndex].timerInterval);
+                    if (username)
+                        this.handleStatsUpdate(username);
                     return {gameEnded: true, isGameWin: true, gridCells: mainGrid.revealGrid()};
                 }
 
@@ -408,6 +441,8 @@ class Game {
                 this.isGameEnded = true;
                 this.isGameWin = true;
                 clearInterval(this.multiGrids[userGridIndex].timerInterval);
+                if (username)
+                    this.handleStatsUpdate(username);
                 return {gameEnded: true, isGameWin: true, gridCells: mainGrid.revealGrid()};
             }
             res.revealedCells.map((r) => {
@@ -421,6 +456,7 @@ class Game {
                     }
                     userGrid.setNumber(r.row, r.col, r.number);
                     userGrid.setVisible(r.row, r.col);
+                    multiGrid.numCellsRevealed++;
                 } else {
                     this.currentGrid.setNumber(r.row, r.col, r.number);
                     this.currentGrid.setVisible(r.row, r.col);
@@ -453,30 +489,31 @@ class Game {
             // Update current bombs number
             if (this.grid.isFlagged(row, col)) {
                 this.currentBombs++;
+                this.numFlagsPlaced--;
+                if (this.grid.hasBomb(row, col))
+                    this.numBombsDefused--;
             } else {
-                if (this.currentBombs > 0)
+                if (this.currentBombs > 0) {
                     this.currentBombs--;
+                    this.numFlagsPlaced++;
+                    if (this.grid.hasBomb(row, col))
+                        this.numBombsDefused++;
+                }
             }
 
             // Flag the server cell
             this.grid.toggleFlag(row, col);
 
             // Flag the client cell
-            if (username) {
-                // If the grid for this user doesn't exist, create it
-                if (!this.multiGrids.find((grid) => grid.username === username)) {
-                    this.multiGrids.push(new Grid(this.rows, this.cols, username));
-                }
-                this.multiGrids.find((grid) => grid.username === username).toggleFlag(row, col);
-            } else {
-                this.currentGrid.toggleFlag(row, col);
-            }
+            this.currentGrid.toggleFlag(row, col);
 
             // console.log("Game ended:", this.checkIfGameEnded());
             if (this.checkIfGameEnded()) {
                 this.isGameEnded = true;
                 this.isGameWin = true;
                 this.stopTimer();
+                if (username)
+                    this.handleStatsUpdate(username);
                 return {gameEnded: true, isGameWin: true, gridCells: this.grid.revealGrid()};
             }
 
@@ -494,8 +531,9 @@ class Game {
         this.addMultiGrid(username);
 
         const userGridIndex = this.multiGrids.findIndex((grid) => grid.username === username);
-        const mainGrid = this.multiGrids[userGridIndex].mainGrid;
-        const userGrid = this.multiGrids[userGridIndex].currentGrid;
+        const multiGrid = this.multiGrids[userGridIndex];
+        const mainGrid = multiGrid.mainGrid;
+        const userGrid = multiGrid.currentGrid;
 
         if (mainGrid.isVisible(row, col)) {
             return [];
@@ -505,10 +543,18 @@ class Game {
 
             // Update current bombs number
             if (mainGrid.isFlagged(row, col)) {
-                this.currentBombs++;
+                multiGrid.currentBombs++;
+                multiGrid.numFlagsPlaced--;
+                if (this.grid.hasBomb(row, col))
+                    multiGrid.numBombsDefused--;
             } else {
-                if (this.currentBombs > 0)
-                    this.currentBombs--;
+                // this.currentBombs in multi ???
+                if (this.currentBombs > 0) {
+                    multiGrid.currentBombs--;
+                    multiGrid.numFlagsPlaced++;
+                    if (this.grid.hasBomb(row, col))
+                        multiGrid.numBombsDefused++;
+                }
             }
 
             // Flag the server cell
@@ -531,6 +577,8 @@ class Game {
                 this.isGameEnded = true;
                 this.isGameWin = true;
                 clearInterval(this.multiGrids[userGridIndex].timerInterval);
+                if (username)
+                    this.handleStatsUpdate(username);
                 return {gameEnded: true, isGameWin: true, gridCells: mainGrid.revealGrid()};
             }
 

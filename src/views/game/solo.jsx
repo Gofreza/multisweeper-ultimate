@@ -75,7 +75,7 @@ const Solo = ({isAuthenticated, isAdmin}) => {
                 timeoutFinished = true;
                 // console.log(`Long press detected on cell (${row}, ${col})`);
                 // Perform the desired action for a long press (right-click)
-                socketRef.current.emit('right-click', { row, col, roomId: getCookies()['roomId'] });
+                socketRef.current.emit('right-click', { row, col, roomId: getCookies()['roomId'], username: getCookies()['username'] });
             }, 200);
 
             // Wait for the timeout to finish
@@ -83,14 +83,14 @@ const Solo = ({isAuthenticated, isAdmin}) => {
                 // Perform the desired action for a quick tap (left-click)
                 if (!timeoutFinished) {
                     // console.log(`Quick tap detected on cell (${row}, ${col})`);
-                    socketRef.current.emit('left-click', { row, col, roomId: getCookies()['roomId'] });
+                    socketRef.current.emit('left-click', { row, col, roomId: getCookies()['roomId'], username: getCookies()['username'] });
                 }
             }, 200);
         } else {
             // Quick tap (left-click)
             clearTimeout(clickTimeout.current);
             // console.log(`Left click on cell (${row}, ${col})`);
-            socketRef.current.emit('left-click', { row, col, roomId: getCookies()['roomId'] });
+            socketRef.current.emit('left-click', { row, col, roomId: getCookies()['roomId'], username: getCookies()['username'] });
         }
     }, []);
 
@@ -108,7 +108,7 @@ const Solo = ({isAuthenticated, isAdmin}) => {
 
         const { row, col } = getGridCoordinates(clientX, clientY, cellSize);
         // console.log(`Right clicked on cell (${row}, ${col})`);
-        socketRef.current.emit('right-click', {row, col, roomId: getCookies()['roomId']})
+        socketRef.current.emit('right-click', {row, col, roomId: getCookies()['roomId'], username: getCookies()['username']})
     }, []);
 
     const addClickListeners = () => {

@@ -4,6 +4,8 @@ const sharedSession = require('express-socket.io-session');
 const {getInstance} = require("../core/roomData");
 const {calculateRankedPoints} = require("../miscFunctions/rankedCalculs");
 const {getPlayersArrayFromGameResults} = require("../miscFunctions/rankedCalculs");
+const {updateWinningStats} = require("../database/dbStats");
+const {getClient} = require("../database/dbSetup");
 
 // Export a function that takes the server instance and session middleware
 module.exports = function configureSocket(server, sessionMiddleware, app) {
@@ -29,10 +31,10 @@ module.exports = function configureSocket(server, sessionMiddleware, app) {
         // =========== SOLO ===========
 
         socket.on('left-click', (data) => {
-            const {row, col, roomId} = data;
+            const {row, col, roomId, username} = data;
             const room = roomData.getSoloRoom(roomId);
             const game = room.game;
-            const res = game.handleLeftClick(row, col);
+            const res = game.handleLeftClick(row, col, username);
 
             if (res.gameEnded) {
                 console.log("Solo Game ended:", res.gameEnded);
@@ -47,10 +49,10 @@ module.exports = function configureSocket(server, sessionMiddleware, app) {
         })
 
         socket.on('right-click', (data) => {
-            const {row, col, roomId} = data;
+            const {row, col, roomId, username} = data;
             const room = roomData.getSoloRoom(roomId);
             const game = room.game;
-            const res = game.handleRightClick(row, col);
+            const res = game.handleRightClick(row, col, username);
 
             if (res.gameEnded) {
                 console.log("Solo Game ended:", res.gameEnded);
@@ -68,7 +70,7 @@ module.exports = function configureSocket(server, sessionMiddleware, app) {
         //          Multi socket
         // =========== MULTI ===========
 
-        socket.on('left-click-multi', (data) => {
+        socket.on('left-click-multi', async (data) => {
             const {row, col, roomId, username} = data;
             const room = roomData.getMultiRoom(roomId);
             //console.log("Handle left click multi:", row, col, roomId, username)
@@ -86,6 +88,23 @@ module.exports = function configureSocket(server, sessionMiddleware, app) {
                     room.started = false;
                     const results = game.getMultiResults();
 
+                    // Update the winning / losing stats for each player
+                    const smallestTimeResult = results.reduce((min, result) => {
+                        return result.timeElapsed < min.timeElapsed ? result : min;
+                    }, results[0]);
+
+                    const updateScores = results.map((result) => {
+                        return {
+                            username: result.username,
+                            gameMode: "multi",
+                            numGamesWon: result.username === smallestTimeResult.username ? 1 : 0,
+                            numGamesLost: result.username === smallestTimeResult.username ? 0 : 1
+                        };
+                    });
+
+                    console.log("All score updates completed: ", updateScores);
+                    await updateWinningStats(getClient(), updateScores);
+
                     if (room.ranked && room.numPlayers > 1) {
                         console.log("Ranked game, calculating points")
                         calculateRankedPoints(results)
@@ -98,12 +117,10 @@ module.exports = function configureSocket(server, sessionMiddleware, app) {
                                 })
                                 io.to(data.roomName).emit('multi-game-ended', results);
                             })
-                    }
-                    else {
+                    } else {
                         io.to(data.roomName).emit('multi-game-ended', results);
                     }
-                }
-                else {
+                } else {
                     socket.emit('multi-game-waiting', res);
                 }
             } else {
@@ -114,7 +131,7 @@ module.exports = function configureSocket(server, sessionMiddleware, app) {
             }
         })
 
-        socket.on('right-click-multi', (data) => {
+        socket.on('right-click-multi', async (data) => {
             const {row, col, roomId, username} = data;
             const room = roomData.getMultiRoom(roomId);
             const game = room.game;
@@ -131,17 +148,33 @@ module.exports = function configureSocket(server, sessionMiddleware, app) {
                     room.started = false;
                     const results = game.getMultiResults();
 
+                    // Update the winning / losing stats for each player
+                    const smallestTimeResult = results.reduce((min, result) => {
+                        return result.timeElapsed < min.timeElapsed ? result : min;
+                    }, results[0]);
+
+                    const updateScores = results.map((result) => {
+                        return {
+                            username: result.username,
+                            gameMode: "multi",
+                            numGamesWon: result.username === smallestTimeResult.username ? 1 : 0,
+                            numGamesLost: result.username === smallestTimeResult.username ? 0 : 1
+                        };
+                    });
+
+                    console.log("All score updates completed: ", updateScores);
+                    await updateWinningStats(getClient(), updateScores);
+
                     if (room.ranked && room.numPlayers > 1) {
                         console.log("Ranked game, calculating points")
                         calculateRankedPoints(results)
                             .then(() => {
                                 console.log("Ranked points calculated")
-                        })
+                            })
                     }
 
                     io.to(data.roomName).emit('multi-game-ended', results);
-                }
-                else {
+                } else {
                     socket.emit('multi-game-waiting', res);
                 }
             } else {
