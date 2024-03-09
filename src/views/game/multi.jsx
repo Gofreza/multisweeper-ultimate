@@ -510,6 +510,15 @@ const Multi = ({isAuthenticated, isAdmin}) => {
             bombs.innerHTML = (Math.ceil(rows * cols * DIFFICULTY_NORMAL)).toString();
             canvasRef.current = document.getElementById('grid');
             addClickListeners();
+
+            // Adapt the home container to the canvas size
+            const canvas = document.getElementById('grid');
+            const home = document.querySelector('.home');
+            if (canvas) {
+                const canvasWidth = canvas.width;
+                home.style.width = `${canvasWidth+200}px`;
+                home.style.height = `${canvas.height+200}px`;
+            }
         }
     }, [isGameStarted]);
 

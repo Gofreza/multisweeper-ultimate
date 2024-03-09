@@ -293,7 +293,6 @@ body.dark .switch::before {
     position: relative;
     left: 250px;
     height: 100vh;
-    width: calc(100% - 250px);
     background: var(--body-color);
     transition: var(--trans-05);
 }
