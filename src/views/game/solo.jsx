@@ -347,6 +347,20 @@ const Solo = ({isAuthenticated, isAdmin}) => {
 
         });
 
+        const canvas = document.getElementById('grid');
+        const home = document.querySelector('.home');
+        const canvasInfos = document.querySelector(`.${styles.canvasInfos}`);
+        const canvasContainer = document.querySelector(`.${styles.canvasContainer}`);
+
+        // Set the width of canvasInfos and canvasContainer based on the width of the grid canvas
+        if (canvas) {
+            const canvasWidth = canvas.width;
+            home.style.width = `${canvasWidth+cellSize}px`;
+            home.style.height = `${canvas.height+cellSize}px`;
+
+            canvasInfos.style.width = `${canvasWidth+20}px`;
+            canvasContainer.style.width = `${canvasWidth+cellSize}px`;
+        }
         // Don't forget to disconnect when the component unmounts
         return () => {
             socketRef.current.disconnect();

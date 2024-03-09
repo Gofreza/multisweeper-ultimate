@@ -7,7 +7,8 @@
   "scripts": {
     "start": "NODE_ENV=production node server.js",
     "webpack": "webpack --mode=production",
-    "start-web": "npm run clean && parcel ./src/views/index/index.jsx",
+    "watch-sass": "sass --watch ./public/css:./public/css",
+    "start-web": "npm run clean && concurrently \"npm run watch-sass\" \"parcel ./src/views/index/index.jsx\"",
     "clean": "rm -rf build && rm -rf dist && rm -rf .parcel-cache",
     "build": "NODE_ENV=production npm run clean && parcel build --target frontend"
   },
@@ -47,6 +48,7 @@
     "@parcel/transformer-sass": "^2.10.3",
     "assert": "^2.1.0",
     "browserify-zlib": "^0.2.0",
+    "concurrently": "^8.2.2",
     "crypto-browserify": "^3.12.0",
     "events": "^3.3.0",
     "os-browserify": "^0.3.0",

@@ -8,20 +8,21 @@
     flex-direction: column;
     justify-content: center;
     align-items: center;
+    width: 100vw;
 
     .container {
         display: flex;
         flex-direction: column;
         justify-content: center;
-        align-items: center;
-        width: fit-content;
+        //align-items: center;
+        width: 100%;
         user-select: none;
 
         .canvasInfos {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            width: 100%;
+            padding-left: 10px;
 
             .bombsContainer {
                 display: flex;
@@ -43,6 +44,10 @@
 
         .canvasContainer {
             display: flex;
+            width: 100%;
+            padding-left: 20px;
+            padding-right: 10px;
+            padding-bottom: 20px;
         }
     }
 }
