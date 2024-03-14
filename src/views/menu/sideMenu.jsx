@@ -1,9 +1,10 @@
-import {useEffect} from "react";
+import {useEffect, useState} from "react";
 import PropTypes from 'prop-types';
 import "/public/css/sidebar.css"
 import {Link} from "react-router-dom";
 
 const sideMenu = ({isAuthenticated, isAdmin}) => {
+    const [isSidebarOpen, setSidebarOpen] = useState(false);
 
     useEffect(() => {
         const body = document.querySelector("body"),
@@ -15,10 +16,12 @@ const sideMenu = ({isAuthenticated, isAdmin}) => {
 
         toggle.addEventListener("click", () => {
             sidebar.classList.toggle("close");
+            setSidebarOpen(!isSidebarOpen);
         })
 
         searchBtn.addEventListener("click", () => {
             sidebar.classList.remove("close");
+            setSidebarOpen(true);
         })
 
         modeSwitch.addEventListener("click", () => {
@@ -61,14 +64,14 @@ const sideMenu = ({isAuthenticated, isAdmin}) => {
                             <li className="nav-links">
                                 <Link to="/">
                                     <i className='bx bx-home-alt icon'></i>
-                                    <span className="text nav-text">Home</span>
+                                    {isSidebarOpen && <span className="text nav-text">Home</span>}
                                 </Link>
                             </li>
                             {isAuthenticated ? (
                                 <li className="nav-links">
                                     <Link to="/profile">
                                         <i className='bx bx-user-circle icon'></i>
-                                        <span className="text nav-text">Profile</span>
+                                        {isSidebarOpen && <span className="text nav-text">Profile</span>}
                                     </Link>
                                 </li>
                             ) : (
@@ -77,26 +80,26 @@ const sideMenu = ({isAuthenticated, isAdmin}) => {
                             <li className="nav-links">
                                 <Link to="/leaderboard">
                                     <i className='bx bx-bar-chart-alt-2 icon'></i>
-                                    <span className="text nav-text">Leaderboard</span>
+                                    {isSidebarOpen && <span className="text nav-text">Leaderboard</span>}
                                 </Link>
                             </li>
                             <li className="nav-links">
                                 <a href="https://github.com/Gofreza/multisweeper-ultimate/tree/master">
                                     <i className='bx bxl-github icon'></i>
-                                    <span className="text nav-text">GitHub</span>
+                                    {isSidebarOpen && <span className="text nav-text">GitHub</span>}
                                 </a>
                             </li>
                             <li className="nav-links">
-                                <Link to="/chess">
-                                    <i className='bx bxs-chess icon'></i>
-                                    <span className="text nav-text">Chess</span>
+                                <Link to="/test">
+                                    <i className='bx bxs-radiation icon'></i>
+                                    {isSidebarOpen && <span className="text nav-text">Test Zone</span>}
                                 </Link>
                             </li>
                             {isAdmin ? (
                                 <li className="nav-links">
                                     <a href="#">
                                         <i className='bx bx-check-shield icon'></i>
-                                        <span className="text nav-text">Admin</span>
+                                        {isSidebarOpen && <span className="text nav-text">Admin</span>}
                                     </a>
                                 </li>
                             ) : (
@@ -110,14 +113,14 @@ const sideMenu = ({isAuthenticated, isAdmin}) => {
                             <li className="">
                                 <a href="/logout">
                                     <i className='bx bx-log-out icon'></i>
-                                    <span className="text nav-text">Logout</span>
+                                    {isSidebarOpen && <span className="text nav-text">Logout</span>}
                                 </a>
                             </li>
                         ) : (
                             <li className="nav-links">
                                 <Link to="/login">
                                     <i className='bx bx-log-in icon'></i>
-                                    <span className="text nav-text">Log In</span>
+                                    {isSidebarOpen && <span className="text nav-text">Log In</span>}
                                 </Link>
                             </li>
                         )}
