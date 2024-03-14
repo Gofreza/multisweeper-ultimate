@@ -89,12 +89,6 @@ const sideMenu = ({isAuthenticated, isAdmin}) => {
                                     {isSidebarOpen && <span className="text nav-text">GitHub</span>}
                                 </a>
                             </li>
-                            <li className="nav-links">
-                                <Link to="/test">
-                                    <i className='bx bxs-radiation icon'></i>
-                                    {isSidebarOpen && <span className="text nav-text">Test Zone</span>}
-                                </Link>
-                            </li>
                             {isAdmin ? (
                                 <li className="nav-links">
                                     <a href="#">

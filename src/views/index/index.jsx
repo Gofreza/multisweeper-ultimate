@@ -15,7 +15,6 @@ import Leaderboard from "../page/leaderboard";
 import Solo from "../game/solo";
 import Multi from "../game/multi";
 import Register from "../auth/register";
-import Map from "../page/map";
 
 const HomeAuth = withAuthentication(Home);
 const ProfileAuth = withAuthentication(Profile);
@@ -25,7 +24,6 @@ const ChangePasswordAuth = withAuthentication(ChangePassword);
 const LeaderboardAuth = withAuthentication(Leaderboard);
 const SoloAuth = withAuthentication(Solo);
 const MultiAuth = withAuthentication(Multi);
-const MapNotAuth = withNotAuthentication(Map);
 
 // Define an async function and call it immediately
 const init = async () => {
@@ -62,10 +60,6 @@ const init = async () => {
             {
                 path: "/game/multi",
                 element: <MultiAuth/>,
-            },
-            {
-                path: "/test",
-                element: <MapNotAuth/>,
             }
         ]);
 
