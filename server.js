@@ -63,7 +63,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 // **********************
 
 const sessionMiddleware = session({
-    secret: '%Mb~nGw+Ql2W6KJS)zr=x@{fl4V3h?YuhGUJX4XJ9{"vnZn&+km^9]z3+}\'UQtV',
+    secret: process.env.SECRET_KEY,
     resave: true,
     saveUninitialized: true
 });

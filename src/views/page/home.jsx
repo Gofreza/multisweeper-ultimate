@@ -1,5 +1,5 @@
 import SideMenu from "../menu/sideMenu";
-import styles from "/public/css/home.module.css"
+import styles from "/public/css/home.module.scss"
 import {useEffect, useState} from "react";
 import {useNavigate} from "react-router-dom";
 
